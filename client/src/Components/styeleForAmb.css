@@ -1,0 +1,94 @@
+/* styeleForAmb.css */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+}
+
+.hospital {
+  max-width: 100%;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  min-height: 100vh; /* Make the content take up at least the full height of the viewport */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: rgb(234, 235, 237);
+}
+
+.title {
+  color: #83888d;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.label-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px; /* Reduced margin */
+}
+
+.label-container label {
+  font-size: 20px; /* Enlarged font size */
+  margin-bottom: 5px; /* Reduced margin */
+}
+
+.checklist-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.list-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-item {
+  margin-bottom: 15px;
+}
+
+button {
+  padding: 10px;
+  background-color: #83888d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #6a7580;
+}
+
+.table-container {
+  margin-top: 20px;
+}
+
+/* Add styles for the table header */
+.table th {
+  background-color: #83888d;
+  color: #fff;
+  padding: 15px;
+  text-align: center;
+}
+
+.table th:first-child {
+  background-color: #000;
+}
+
+/* Add styles for the table rows */
+.table tbody td {
+  text-align: center;
+  padding: 15px;
+}
+
+/* Add styles for alternating row colors */
+.table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
