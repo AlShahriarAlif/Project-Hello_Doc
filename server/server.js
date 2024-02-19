@@ -33,7 +33,7 @@ app.get("/Ambulance_Home", async (req, res) => {
     console.error(err.message);
   }
 })
-app.post("/login", async (req, res) => {
+app.post("/Registration", async (req, res) => {
   try {
     console.log("Registration req coming");
     const {firstName, email,password,location} = req.body;
