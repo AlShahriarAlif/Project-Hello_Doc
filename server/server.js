@@ -29,16 +29,11 @@ app.get("/Ambulance_Home", async (req, res) => {
     console.log(q.rows);
     return res.json(q.rows);
 
-<<<<<<< HEAD
   } catch (err) {
     console.error(err.message);
   }
 })
 app.post("/login", async (req, res) => {
-=======
-//for new signup
-app.post("/Registration", async (req, res) => {
->>>>>>> fbbe007fd3b07dbbaa50b5955756b6e9738a4125
   try {
     console.log("Registration req coming");
     const {firstName, email,password,location} = req.body;
