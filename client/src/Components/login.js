@@ -1,4 +1,5 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; 
 
 const Login = () => {
     const [inputs, setInputs] = useState({
@@ -27,9 +28,9 @@ const Login = () => {
             console.log("OK")
         else console.log("Not OK")
     }
-
+    const navigate = useNavigate();
     return (
-        <Fragment>
+        <div>
             <body class="antialiased bg-gradient-to-br from-green-100 to-white">
                 <div class="container px-6 mx-auto">
                     <div
@@ -129,11 +130,9 @@ const Login = () => {
                                         </button>
                                         <div class="flex justify-evenly mt-5">
                                             <p>Don't have an account?</p>
-                                            <a
-                                                href="#"
-                                                class="w-full text-center font-medium text-gray-500"
-                                            >Create an account</a
-                                            >
+                                            <li>
+                                            <a  class="w-full text-center font-medium text-gray-500" onClick={() => navigate("/Registration")}>Create an account</a>
+                                            </li>
                                         </div>
                                     </div>
                                 </form>
@@ -142,8 +141,8 @@ const Login = () => {
                     </div>
                 </div>
             </body>
-        </Fragment>
+        </div>
     );
-}
+};
 
 export default Login;
