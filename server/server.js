@@ -29,20 +29,37 @@ app.get("/Ambulance_Home", async (req, res) => {
     console.log(q.rows);
     return res.json(q.rows);
 
+<<<<<<< HEAD
   } catch (err) {
     console.error(err.message);
   }
 })
 app.post("/login", async (req, res) => {
+=======
+//for new signup
+app.post("/Registration", async (req, res) => {
+>>>>>>> fbbe007fd3b07dbbaa50b5955756b6e9738a4125
   try {
-    console.log("req coming");
+    console.log("Registration req coming");
     const {firstName, contact,password} = req.body;
     const {"type":type} = req.headers;
     console.log(type)
     console.log(firstName,contact,password);
-    const q = await pool.query(
-      'SELECT * FROM "Hello_Doc"."User" where "Name" = $1;',[firstName]
+    
+    //for updating reg number automatically
+    const lastRegNumberQuery = await pool.query(
+      'SELECT "Reg.Number" FROM "Hello_Doc"."User" ORDER BY "Reg.Number" DESC LIMIT 1'
     );
+    let lastRegNumber=0;
+    if(lastRegNumberQuery.rows.length>0)
+    {
+      lastRegNumber = lastRegNumberQuery.rows[0]["Reg.Number"];
+    }
+    const newRegNumber = lastRegNumber + 1;
+
+    const q = await pool.query(
+      'INSERT INTO "Hello_Doc"."User" ("Reg.Number", first_name, contact, password) VALUES ($1, $2, $3, $4) RETURNING *',
+      [newRegNumber, firstName, contact, password]    );
     console.log(q.rows);
     if(q.rows.length === 0)
       return res.sendStatus(401);
@@ -53,6 +70,30 @@ app.post("/login", async (req, res) => {
     console.error(err.message);
   }
 })
+
+//For login 
+app.post("/login", async (req, res) => {
+  try {
+    console.log("log in req coming");
+    const {firstName,password} = req.body;
+    const {"type":type} = req.headers;
+    console.log(type)
+    console.log(firstName,password);
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."User" where "Name" = $1 AND "Password"=$2;',[firstName,password]
+    );
+    console.log(q.rows);
+    if(q.rows.length === 0)
+      return res.sendStatus(401);
+    //return res.sendStatus(200);
+     return res.json(q.rows);
+
+  } catch (err) {
+    console.error(err.message);
+  }
+})
+
+
 
 //get info of a particular doctor with doc_id 
 app.get("/Hello_Doc/:ID", async (req, res) => {
