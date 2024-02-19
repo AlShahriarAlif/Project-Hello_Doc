@@ -1,4 +1,6 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react';
+import { Link, useNavigate } from "react-router-dom"; 
+
 
 const Resigtration = () => {
     // const [inputs, setInputs] = useState({
@@ -27,7 +29,7 @@ const Resigtration = () => {
     //         console.log("OK")
     //     else console.log("Not OK")
     // }
-
+    const navigate = useNavigate();
     return (
         <Fragment>
             <div class="w-full h-auto overflow-scroll block h-screen bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 p-4 flex items-center justify-center" >
@@ -64,7 +66,9 @@ const Resigtration = () => {
             </div>
             <div class="flex justify-center ">
                 <p class="text-gray-500">Already have an acount? </p>
-                <a href="" class="text-sky-600 pl-2"> Sign In</a>
+               <li>
+                <a  class="text-sky-600 pl-2" onClick={() => navigate("/login")}> Sign In</a>
+                </li>
             </div>
         </div>
     </div>
