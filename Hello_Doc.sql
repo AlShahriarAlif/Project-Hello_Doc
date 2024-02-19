@@ -1,20 +1,19 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : practise
+ Source Server         : SS
  Source Server Type    : PostgreSQL
  Source Server Version : 160001 (160001)
  Source Host           : localhost:5432
- Source Catalog        : Rakib
+ Source Catalog        : postgres
  Source Schema         : Hello_Doc
 
  Target Server Type    : PostgreSQL
  Target Server Version : 160001 (160001)
  File Encoding         : 65001
 
- Date: 18/02/2024 16:22:33
+ Date: 19/02/2024 23:40:53
 */
-
 
 -- ----------------------------
 -- Sequence structure for Ambulance Driver_driver_id_seq

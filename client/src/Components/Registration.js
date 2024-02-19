@@ -3,32 +3,34 @@ import { Link, useNavigate } from "react-router-dom";
 
 
 const Resigtration = () => {
-    // const [inputs, setInputs] = useState({
-    //     firstName:"",
-    //     contact:"",
-    //     password:"",
-    // });
-    // const {firstName,contact, password} = inputs;
-    // const onChange = (e) => {
-    //     setInputs({...inputs, [e.target.name]:e.target.value});
-    // };
+     const [inputs, setInputs] = useState({
+        firstName:"",
+        contact:"",
+        password:"",
+    });
+    const {firstName,contact, password} = inputs;
+    const onChange = (e) => {
+        setInputs({...inputs, [e.target.name]:e.target.value});
+    };
 
-    // const onSubmitForm = async(e) =>{
-    //     e.preventDefault();
-    //     const hello = {firstName, contact, password} ;
-    //     console.log(hello);
-    //     const res = await fetch("http://localhost:5000/Registration",{
-    //         method : "POST",
-    //         headers:{"Content-Type" : "application/json",
-    //         "type" : ("Normal User")
-    //     },
-    //         body:JSON.stringify(hello),
+    const onSubmitForm = async(e) =>{
+        e.preventDefault();
+        const hello = {firstName, contact, password} ;
+        console.log(hello);
+        const res = await fetch("http://localhost:5000/Registration",{
+            method : "POST",
+            headers:{"Content-Type" : "application/json",
+            "type" : ("Normal User")
+        },
+            body:JSON.stringify(hello),
             
-    //     })
-    //     if(res.status == 200)
-    //         console.log("OK")
-    //     else console.log("Not OK")
-    // }
+        })
+         if(res.status == 200)
+             {
+                navigate("/homepage");
+             }
+         else console.log("Not OK")
+    }
     const navigate = useNavigate();
     return (
         <Fragment>
@@ -39,26 +41,26 @@ const Resigtration = () => {
         </div>
         <div class="">
             <div>
-                 <input type="text" class="focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Name "/>
+                 <input type="text" class="focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" onChange={(e) => onChange(e)} placeholder="Name "/>
             </div>
              <div>
-                 <input type="email" class="focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500 my-8"  placeholder="Eamil Adress "/>
+                 <input type="email" class="focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500 my-8" onChange={(e) => onChange(e)} placeholder="Email Adress "/>
             </div>
              <div>
             {/* <input type="text" class="focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500 mb-8"  placeholder="Country "/> */}
             </div>
-             <div>
+             {/* <div>
             <input type="phone" class="focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500 mb-8"  placeholder="Phone "/>
-            </div>
+            </div> */}
             <div class="">
-                <input type="password" class="focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500 mb-8"  placeholder="Password " />
+                <input type="password" class="focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500 mb-8" onChange={(e) => onChange(e)}  placeholder="Password " />
             </div>
-            <div class="flex">
+            {/* <div class="flex">
                 <input type="checkbox" class="border-sky-400 " value="" />
                 <div class="px-3 text-gray-500">
                     I accept terms & conditions 
                 </div>
-            </div>
+            </div> */}
             <div class="flex justify-center my-6">
                 <button class=" rounded-full  p-3 w-full sm:w-56   bg-gradient-to-r from-sky-600  to-teal-300 text-white text-lg font-semibold " >
                     Create Account

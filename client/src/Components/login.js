@@ -4,17 +4,16 @@ import { Link, useNavigate } from "react-router-dom";
 const Login = () => {
     const [inputs, setInputs] = useState({
         firstName:"",
-        contact:"",
         password:"",
     });
-    const {firstName,contact, password} = inputs;
+    const {firstName, password} = inputs;
     const onChange = (e) => {
         setInputs({...inputs, [e.target.name]:e.target.value});
     };
 
     const onSubmitForm = async(e) =>{
         e.preventDefault();
-        const hello = {firstName, contact, password} ;
+        const hello = {firstName, password} ;
         console.log(hello);
         const res = await fetch("http://localhost:5000/login",{
             method : "POST",
@@ -24,9 +23,15 @@ const Login = () => {
             body:JSON.stringify(hello),
             
         })
-        if(res.status == 200)
-            console.log("OK")
-        else console.log("Not OK")
+        if(res.status == 401)
+        {
+            window.alert("YOU MUST SIGN UP FIRST");
+        }
+           
+        else 
+        {console.log(" OK")
+        navigate("/ambulance"); 
+    }
     }
     const navigate = useNavigate();
     return (
@@ -53,10 +58,10 @@ const Login = () => {
                                     ></path>
                                 </svg>
                             </div>
-                            <h1 class="text-5xl text-gray-800 font-bold">Client Area</h1>
-                            <p class="w-5/12 mx-auto md:mx-0 text-gray-500">
+                            <h1 class="text-5xl text-gray-800 font-bold">Hello DOC</h1>
+                            {/* <p class="w-5/12 mx-auto md:mx-0 text-gray-500">
                                 Control and monitorize your website data from dashboard.
-                            </p>
+                            </p> */}
                         </div>
                         <div class="w-full md:w-full lg:w-9/12 mx-auto md:mx-0">
                             <div class="bg-white p-10 flex flex-col w-full shadow-xl rounded-xl">
@@ -77,7 +82,7 @@ const Login = () => {
                                             onChange={(e) => onChange(e)}
                                         />
                                     </div>
-                                    <div id="input" class="flex flex-col w-full my-5">
+                                    {/* <div id="input" class="flex flex-col w-full my-5">
                                         <label for="contact" class="text-gray-500 mb-2"
                                         >Contact No</label
                                         >
@@ -89,7 +94,7 @@ const Login = () => {
                                             value={contact}
                                             onChange={(e) => onChange(e)}
                                         />
-                                    </div>
+                                    </div> */}
                                     <div id="input" class="flex flex-col w-full my-5">
                                         <label for="password" class="text-gray-500 mb-2"
                                         >Password</label
