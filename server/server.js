@@ -25,25 +25,25 @@ app.get("/Hello_Doc", async (req, res) => {
 app.post("/Registration", async (req, res) => {
   try {
     console.log("Registration req coming");
-    const {firstName, contact,password} = req.body;
+    const {firstName, email,password,location} = req.body;
     const {"type":type} = req.headers;
     console.log(type)
-    console.log(firstName,contact,password);
+    console.log(firstName,email,password,location);
     
     //for updating reg number automatically
     const lastRegNumberQuery = await pool.query(
-      'SELECT "Reg.Number" FROM "Hello_Doc"."User" ORDER BY "Reg.Number" DESC LIMIT 1'
+      'SELECT "Reg. Number" FROM "Hello_Doc"."User" ORDER BY "Reg. Number" DESC LIMIT 1'
     );
     let lastRegNumber=0;
     if(lastRegNumberQuery.rows.length>0)
     {
-      lastRegNumber = lastRegNumberQuery.rows[0]["Reg.Number"];
+      lastRegNumber = lastRegNumberQuery.rows[0]["Reg. Number"];
     }
     const newRegNumber = lastRegNumber + 1;
 
     const q = await pool.query(
-      'INSERT INTO "Hello_Doc"."User" ("Reg.Number", first_name, contact, password) VALUES ($1, $2, $3, $4) RETURNING *',
-      [newRegNumber, firstName, contact, password]    );
+      'INSERT INTO "Hello_Doc"."User" ("Reg. Number", "Name", "Email", "Password","Location") VALUES ($1, $2, $3, $4,$5) RETURNING *',
+      [newRegNumber, firstName, email, password,location]    );
     console.log(q.rows);
     if(q.rows.length === 0)
       return res.sendStatus(401);
