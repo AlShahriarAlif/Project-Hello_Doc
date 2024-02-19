@@ -33,6 +33,7 @@ app.get("/Ambulance_Home", async (req, res) => {
     console.error(err.message);
   }
 })
+//for Creating new Account
 app.post("/Registration", async (req, res) => {
   try {
     console.log("Registration req coming");
