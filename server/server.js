@@ -20,7 +20,19 @@ app.get("/Hello_Doc", async (req, res) => {
     console.error(err.message);
   }
 })
+app.get("/Ambulance_Home", async (req, res) => {
+  try {
+    console.log("req coming");
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Ambulance";'
+    );
+    console.log(q.rows);
+    return res.json(q.rows);
 
+  } catch (err) {
+    console.error(err.message);
+  }
+})
 app.post("/login", async (req, res) => {
   try {
     console.log("req coming");
