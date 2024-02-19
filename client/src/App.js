@@ -9,6 +9,7 @@ import Login from './Components/login';
 import Resigtration from './Components/Registration';
 import S from './Components/SpaceX';
 import Test3 from './Components/test3';
+import  Ambulance from './Components/Ambulance';
 // Import other components as needed
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/Registration" element = {<Resigtration/>}/>
           <Route path="/tt" element = {<S/>}/>
           <Route path='/test3' element ={<Test3/>}/>
+          <Route path='/Ambulance_Home' element ={<Ambulance/>}/>
           {/* Add more routes as needed */}
         </Routes>
       </Fragment>
