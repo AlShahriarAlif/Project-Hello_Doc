@@ -7,6 +7,8 @@ import Searchamb from './Components/searchAmb';
 import Test1 from './Components/Test';
 import Login from './Components/login';
 import Resigtration from './Components/Registration';
+import S from './Components/SpaceX';
+import Test3 from './Components/test3';
 // Import other components as needed
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/ambulance" element={<Searchamb />} />
           <Route path="/test" element = {<Test1/>}/>
           <Route path="/Registration" element = {<Resigtration/>}/>
+          <Route path="/tt" element = {<S/>}/>
+          <Route path='/test3' element ={<Test3/>}/>
           {/* Add more routes as needed */}
         </Routes>
       </Fragment>
