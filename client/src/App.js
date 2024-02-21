@@ -9,6 +9,7 @@ import Test1 from './Components/Test';
 import Login from './Components/login';
 import Resigtration from './Components/Registration';
 import Test3 from './Components/test3';
+import Hospitalhome from './Components/HospitalHome';
 // Import other components as needed
 function App() {
   return (
@@ -24,7 +25,7 @@ function App() {
           <Route path="/test" element = {<Test1/>}/>
           <Route path="/Registration" element = {<Resigtration/>}/>
           <Route path='/test3' element ={<Test3/>}/>
-          
+          <Route path='/hospital' element ={<Hospitalhome/>}/>
           {/* Add more routes as needed */}
         </Routes>
         </Fragment>

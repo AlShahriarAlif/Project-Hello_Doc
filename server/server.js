@@ -89,6 +89,75 @@ app.post("/login", async (req, res) => {
   }
 })
 
+//Ambulace driver log in
+app.post("/login/Driver", async (req, res) => {
+  try {
+    console.log("log in req coming for driver");
+    const {firstName,password} = req.body;
+    // const {"type":type} = req.headers;
+    // console.log(type)
+    //console.log("dsds");
+    console.log(firstName,password);
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Ambulance Driver" WHERE "driver_name" = $1 AND "contact" = $2',[firstName,password]
+    );
+    console.log(q.rows);
+    if(q.rows.length === 0)
+      return res.sendStatus(401);
+    //return res.sendStatus(200);
+     return res.json(q.rows);
+
+  } catch (err) {
+    console.error(err.message);
+  }
+})
+
+//Hospital owner log in
+app.post("/login/Hospital", async (req, res) => {
+  try {
+    console.log("log in req coming for Hospital Owner");
+    const {firstName,password} = req.body;
+    // const {"type":type} = req.headers;
+    // console.log(type)
+    //console.log("dsds");
+    console.log(firstName,password);
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Hospital Admin" WHERE "Name" = $1 AND "Password" = $2',[firstName,password]
+    );
+    console.log(q.rows);
+    if(q.rows.length === 0)
+      return res.sendStatus(401);
+    //return res.sendStatus(200);
+     return res.json(q.rows);
+
+  } catch (err) {
+    console.error(err.message);
+  }
+})
+
+//Admin log in
+app.post("/login/Hospital", async (req, res) => {
+  try {
+    console.log("log in req coming for Admin");
+    const {firstName,password} = req.body;
+    // const {"type":type} = req.headers;
+    // console.log(type)
+    //console.log("dsds");
+    console.log(firstName,password);
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Admin" WHERE "Name" = $1 AND "Password" = $2',[firstName,password]
+    );
+    console.log(q.rows);
+    if(q.rows.length === 0)
+      return res.sendStatus(401);
+    //return res.sendStatus(200);
+     return res.json(q.rows);
+
+  } catch (err) {
+    console.error(err.message);
+  }
+})
+
 
 
 //get info of a particular doctor with doc_id 
@@ -132,26 +201,23 @@ app.get("/Hello_Doc/search/speciality/:speciality", async (req, res) => {
   }
 });
 //for driver login
-app.post("/login/driver", async (req, res) => {
-try {
-  console.log("log in req coming");
-  const {firstName,password} = req.body;
-  const {"type":type} = req.headers;
-  console.log(type)
-  console.log(firstName,password);
-  const q = await pool.query(
-    'SELECT * FROM "Hello_Doc"."Driver Log in" where "Name" = $1 AND "Password"=$2;',[firstName,password]
-  );
-  console.log(q.rows);
-  if(q.rows.length === 0)
-    return res.sendStatus(401);
-  //return res.sendStatus(200);
-   return res.json(q.rows);
+app.post("/login/Driver", async (req, res) => { // Change to match the frontend endpoint
+  try {
+    console.log("log in req coming");
+    const { firstName, password } = req.body;
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Ambulance Driver" WHERE "driver_name" = $1 AND "contact" = $2', 
+      [firstName, password]
+    );
+    console.log(q.rows);
+    if (q.rows.length === 0)
+      return res.sendStatus(401);
+    return res.json(q.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
-} catch (err) {
-  console.error(err.message);
-}
-})
 // Search for a hospital by name
 app.get("/Hello_Doc/search/hospital/:name", async (req, res) => {
   try {
@@ -167,7 +233,7 @@ app.get("/Hello_Doc/search/hospital/:name", async (req, res) => {
 });
 
 //Search Ambulance under a hospital
-app.get("/Hello_Doc/search/hospital_for_ambulance/:name", async (req, res) => {
+app.get("/Hospital_Home", async (req, res) => {
   try {
     const { name } = req.params;
     const results = await pool.query(
