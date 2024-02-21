@@ -131,7 +131,27 @@ app.get("/Hello_Doc/search/speciality/:speciality", async (req, res) => {
     console.error(err.message);
   }
 });
+//for driver login
+app.post("/login/driver", async (req, res) => {
+try {
+  console.log("log in req coming");
+  const {firstName,password} = req.body;
+  const {"type":type} = req.headers;
+  console.log(type)
+  console.log(firstName,password);
+  const q = await pool.query(
+    'SELECT * FROM "Hello_Doc"."Driver Log in" where "Name" = $1 AND "Password"=$2;',[firstName,password]
+  );
+  console.log(q.rows);
+  if(q.rows.length === 0)
+    return res.sendStatus(401);
+  //return res.sendStatus(200);
+   return res.json(q.rows);
 
+} catch (err) {
+  console.error(err.message);
+}
+})
 // Search for a hospital by name
 app.get("/Hello_Doc/search/hospital/:name", async (req, res) => {
   try {

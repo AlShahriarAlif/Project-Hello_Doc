@@ -1,7 +1,8 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState ,useContext } from 'react';
 import { Link, useNavigate } from "react-router-dom"; 
-
+import { LoginContext } from './logincontext';
 const Registration = () => {
+    const { setIsLoggedIn, setUsername } = useContext(LoginContext);
     const [inputs, setInputs] = useState({
         firstName: "",
         email: "",
@@ -26,10 +27,12 @@ const Registration = () => {
             },
             body: JSON.stringify(hello),
         });
-        if (res.status === 200) {
-            navigate("/ambulance");
+        if (!res.ok) {
+            throw new Error(res.status);
         } else {
-            console.log("Not OK");
+            setIsLoggedIn(true);
+            setUsername(firstName);
+            navigate("/ambulance");
         }
     };
 

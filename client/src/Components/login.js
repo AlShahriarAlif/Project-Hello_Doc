@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import React, { useState, useContext } from "react";import { Link, useNavigate } from "react-router-dom"; 
+import { LoginContext } from './logincontext';
 
 const Login = () => {
+    
+    const { setIsLoggedIn, setUsername } = useContext(LoginContext);
     const [inputs, setInputs] = useState({
         firstName:"",
         password:"",
@@ -23,16 +25,15 @@ const Login = () => {
             body:JSON.stringify(hello),
             
         })
-        if(res.status == 401)
-        {
-            window.alert("YOU MUST SIGN UP FIRST");
+        if (!res.ok) {
+            window.alert("YOU MUST DID SOMETHING WRONG .");
+        } else {
+            setIsLoggedIn(true);
+            setUsername(firstName);
+            navigate("/ambulance"); 
         }
-           
-        else 
-        {console.log(" OK")
-        navigate("/ambulance"); 
     }
-    }
+    
     const navigate = useNavigate();
     return (
         <div>
@@ -82,19 +83,6 @@ const Login = () => {
                                             onChange={(e) => onChange(e)}
                                         />
                                     </div>
-                                    {/* <div id="input" class="flex flex-col w-full my-5">
-                                        <label for="contact" class="text-gray-500 mb-2"
-                                        >Contact No</label
-                                        >
-                                        <input
-                                            type="text"
-                                            name="contact"
-                                            placeholder="Contact No"
-                                            class="appearance-none border-2 border-gray-100 rounded-lg px-4 py-3 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:shadow-lg"
-                                            value={contact}
-                                            onChange={(e) => onChange(e)}
-                                        />
-                                    </div> */}
                                     <div id="input" class="flex flex-col w-full my-5">
                                         <label for="password" class="text-gray-500 mb-2"
                                         >Password</label

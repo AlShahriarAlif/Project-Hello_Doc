@@ -1,35 +1,40 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import React, { useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
+import { LoginContext } from './logincontext';
+
 import "./homepage.css"; 
 
 const Navbar = () => {
   
-  
+    const { isLoggedIn, username } = useContext(LoginContext);
+
   const navigate = useNavigate(); 
   return (
-    <nav class="navbar navbar-expand-custom navbar-mainbg">
-    <a class="navbar-brand navbar-logo" href="#">Hello_Doc</a>
-    {/* <button class="navbar-toggler" type="button" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <i class="fas fa-bars text-white"></i>
-    </button> */}
-    <div  id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto">
-            <div class="hori-selector"><div class="left"></div><div class="right"></div></div>
-            <li class="nav-item">
-                <Link to="/hospitals" class="nav-link"><i class="fas fa-tachometer-alt"></i>HOSPITALS</Link>
+    <nav className="navbar navbar-expand-custom navbar-mainbg">
+      <a className="navbar-brand navbar-logo" href="#">Hello_Doc</a>
+      <div id="navbarSupportedContent">
+        <ul className="navbar-nav ml-auto">
+          <div className="hori-selector"><div className="left"></div><div className="right"></div></div>
+          <li className="nav-item">
+            <Link to="/hospitals" className="nav-link"><i className="fas fa-tachometer-alt"></i>HOSPITALS</Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/ambulance" className="nav-link"><i className="far fa-clone"></i>Ambulance</Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/doctors" className="nav-link"><i className="far fa-calendar-alt"></i>Doctor</Link>
+          </li>
+          <li className="nav-item">
+            {isLoggedIn ? (
+              <a className="nav-link"><i className="far fa-chart-bar"></i>{username}</a>
+              ) : (
+                <a className="nav-link" onClick={() => navigate("/login")}><i className="far fa-chart-bar"></i>Login/SignUp</a>
+              )}
             </li>
-            <li class="nav-item">
-                <Link to="/ambulance" class="nav-link"><i class="far fa-clone"></i>Ambulance</Link>
-            </li>
-            <li class="nav-item">
-                <Link to="/doctors" class="nav-link"><i class="far fa-calendar-alt"></i>Doctor</Link>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" onClick={() => navigate("/login")}><i class="far fa-chart-bar"></i>Login/SignUp</a>
-            </li>
-        </ul>
-    </div>
-</nav>
+          </ul>
+        </div>
+      </nav>
+  
   );
 };
 

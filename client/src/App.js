@@ -1,19 +1,19 @@
 import React, { Fragment } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
+import { LoginProvider } from './Components/loginprovider';
 import Test from './Components/home';
 import SearchDoc from './Components/searchDoc';
-import Searchamb from './Components/searchAmb';
+import Searchamb from './Components/Ambulance';
 import Test1 from './Components/Test';
 import Login from './Components/login';
 import Resigtration from './Components/Registration';
-import S from './Components/SpaceX';
 import Test3 from './Components/test3';
-import  Ambulance from './Components/Ambulance';
 // Import other components as needed
 function App() {
   return (
     <Router>
+      <LoginProvider>
       <Fragment>
         {/* Define your routes inside the Routes component */}
         <Routes>
@@ -23,12 +23,13 @@ function App() {
           <Route path="/ambulance" element={<Searchamb />} />
           <Route path="/test" element = {<Test1/>}/>
           <Route path="/Registration" element = {<Resigtration/>}/>
-          <Route path="/tt" element = {<S/>}/>
           <Route path='/test3' element ={<Test3/>}/>
-          <Route path='/Ambulance_Home' element ={<Ambulance/>}/>
+          
           {/* Add more routes as needed */}
         </Routes>
-      </Fragment>
+        </Fragment>
+        </LoginProvider>
+      
     </Router>
   );
 }

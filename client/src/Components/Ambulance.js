@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect, useContext } from 'react';
+import { LoginContext } from './logincontext'; 
+let ambulanceBooked = false;
 const Ambulance = () => {
+    const { isLoggedIn } = useContext(LoginContext); 
     const [results, setResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('');
@@ -52,14 +54,22 @@ const Ambulance = () => {
     );
 
     const bookAmbulance = (result) => {
+        if (!isLoggedIn) {
+            alert('You must log in first.');
+            return;
+        }
+        if (ambulanceBooked) {
+            alert('You can order at most one ambulance at a time.');
+            return;
+        }
         if (result.Availability) {
-            // Code for booking confirmation notification
+            ambulanceBooked = true; // Set ambulanceBooked to true after booking
             alert('Ambulance booked successfully!');
         } else {
-            // Code for showing alert message if ambulance is not available
             alert('Sorry, this ambulance is not available.');
         }
     }
+    
 
     return (
         <div className="text-gray-900 bg-gray-200">
