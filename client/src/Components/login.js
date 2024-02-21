@@ -26,10 +26,11 @@ const Login = () => {
             
         })
         if (!res.ok) {
-            window.alert("YOU MUST DID SOMETHING WRONG .");
+           
         } else {
-            setIsLoggedIn(true);
+            setIsLoggedIn(true); 
             setUsername(firstName);
+          //  setID(res.q.)
             navigate("/ambulance"); 
         }
     }
