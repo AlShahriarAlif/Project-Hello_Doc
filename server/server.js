@@ -13,10 +13,19 @@ app.post('/bookambulance', async (req, res) => {
   try {
     
       const { user_id, ambulance_id } = req.body;
-      console.log(req.body);
-      console.log('Sending userID:', user_id);
-      console.log('userID from context:', user_id); 
-      const q=await pool.query('INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id") VALUES ($1, $2)', [user_id, ambulance_id]);
+      // console.log(req.body);
+      // console.log('Sending userID:', user_id);
+      // console.log('userID from context:', user_id);
+       const lastIDFromQuery=await pool.query(
+        'SELECT "ID" FROM "Hello_Doc"."Order Ambulance" ORDER BY "ID" DESC LIMIT 1'
+       );
+       let lastID=0;
+       if(lastIDFromQuery.rows.length>0)
+       {
+        lastID=lastIDFromQuery.rows[0]["ID"];
+       }
+       const newID=lastID+1;
+      const q=await pool.query('INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id","ID") VALUES ($1, $2,$3)', [user_id, ambulance_id,newID]);
       res.json({ success: true });
   } catch (err) {
       console.error(err);
