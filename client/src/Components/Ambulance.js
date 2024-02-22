@@ -77,6 +77,8 @@ const Ambulance = () => {
         if (result.Availability) {
             ambulanceBooked = true; // Set ambulanceBooked to true after booking
              setAmbulanceID(result.ID);
+             setSelectedUser(result);
+             setModalIsOpen(true);
             try {
                 const response = await fetch('http://localhost:5000/bookambulance',{
                     
@@ -92,7 +94,7 @@ const Ambulance = () => {
                 }) ,   
                 });
                 const data = await response.json();
-                if(data.succcess){
+                if(data.success){
                     alert('Ambulance booked successfully!');
 
                 }
@@ -105,8 +107,7 @@ const Ambulance = () => {
                 console.error(err);
                 alert('Failed to book ambulance.');
             }
-            setSelectedUser(result);
-            setModalIsOpen(true);
+          
         }
          else {
             alert('Sorry, this ambulance is not available.');
