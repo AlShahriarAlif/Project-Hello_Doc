@@ -16,6 +16,23 @@ app.post('/bookambulance', async (req, res) => {
       // console.log(req.body);
       // console.log('Sending userID:', user_id);
       // console.log('userID from context:', user_id);
+      const check_Amb_Is_Already_Present = await pool.query(
+        'SELECT "Ambulance id" FROM "Hello_Doc"."Order Ambulance" WHERE "Ambulance id"=$1',[ambulance_id] 
+      );
+      if(check_Amb_Is_Already_Present.rows.length>0)
+      {
+        return res.json({success:1});
+      }
+
+      const check_User_Is_Already_Present = await pool.query(
+        'SELECT "user_id" FROM "Hello_Doc"."Order Ambulance" WHERE "user_id"=$1',[user_id] 
+      );
+      if(check_User_Is_Already_Present.rows.length>0)
+      {
+       return res.json({success:2});
+      }
+      
+
        const lastIDFromQuery=await pool.query(
         'SELECT "ID" FROM "Hello_Doc"."Order Ambulance" ORDER BY "ID" DESC LIMIT 1'
        );
@@ -26,10 +43,11 @@ app.post('/bookambulance', async (req, res) => {
        }
        const newID=lastID+1;
       const q=await pool.query('INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id","ID") VALUES ($1, $2,$3)', [user_id, ambulance_id,newID]);
-      res.json({ success: true });
+     return res.json({ success: 3 });
   } catch (err) {
-      console.error(err);
-      res.json({ success: false, message: 'Failed to book ambulance.' });
+    res.json({ success: 4 });
+     return console.error(err);
+     
   }
 });
 

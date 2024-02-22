@@ -94,9 +94,17 @@ const Ambulance = () => {
                 }) ,   
                 });
                 const data = await response.json();
-                if(data.success){
+                if(data.success===3){
                     alert('Ambulance booked successfully!');
 
+                }
+                else if(data.success===1)
+                {
+                    alert('Ambulance is not present available');
+                }
+                else if(data.success===2)
+                {
+                    alert('you have already ordered an Ambulance before . ');
                 }
                 else{
                     alert('Maybe Some error occured our team is working on it');
