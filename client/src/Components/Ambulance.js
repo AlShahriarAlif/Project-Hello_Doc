@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { LoginContext } from './logincontext'; 
+import { AmbulanceLogInContext} from './ambulancelogincotext';
 import Modal from 'react-modal';
 
 // Make sure to bind modal to your appElement
@@ -10,8 +11,9 @@ Modal.setAppElement('#root')
 let ambulanceBooked = false;
 
 const Ambulance = () => {
-    const { isLoggedIn } = useContext(LoginContext); 
-    const [results, setResults] = useState([]);
+    const { isLoggedIn,userID } = useContext(LoginContext);
+    const {setAmbulanceID}=useContext(AmbulanceLogInContext); 
+     const [results, setResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('');
     const [minPrice, setMinPrice] = useState('');
@@ -63,7 +65,7 @@ const Ambulance = () => {
         (!maxPrice || parseFloat(result.Price_per_hour.slice(1)) <= parseFloat(maxPrice))
     );
 
-    const bookAmbulance = (result) => {
+    const bookAmbulance = async(result) => {
         if (!isLoggedIn) {
             alert('You must log in first.');
             return;
@@ -74,9 +76,39 @@ const Ambulance = () => {
         }
         if (result.Availability) {
             ambulanceBooked = true; // Set ambulanceBooked to true after booking
+             setAmbulanceID(result.ID);
+            try {
+                const response = await fetch('http://localhost:5000/bookambulance',{
+                    
+
+                method:'POST',
+                headers :{
+                    'Content-Type':'application/json',
+                },
+                body: JSON.stringify({
+                    user_id :userID,
+                    ambulance_id:result.ID,
+                    
+                }) ,   
+                });
+                const data = await response.json();
+                if(data.succcess){
+                    alert('Ambulance booked successfully!');
+
+                }
+                else{
+                    alert('Maybe Some error occured our team is working on it');
+                }
+
+            }
+            catch(err){
+                console.error(err);
+                alert('Failed to book ambulance.');
+            }
             setSelectedUser(result);
             setModalIsOpen(true);
-        } else {
+        }
+         else {
             alert('Sorry, this ambulance is not available.');
         }
     };

@@ -1,9 +1,10 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext ,useEffect} from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import { LoginContext } from './logincontext';
 
+
 const Login = () => {
-    const { setIsLoggedIn, setUsername, setID } = useContext(LoginContext);
+    const { setIsLoggedIn, setUserName, setUserID, userID } = useContext(LoginContext);
     const [inputs, setInputs] = useState({
         firstName: "",
         password: "",
@@ -13,6 +14,9 @@ const Login = () => {
     const onChange = (e) => {
         setInputs({ ...inputs, [e.target.name]: e.target.value });
     };
+    useEffect(() => {
+        console.log('userID set:', userID);
+    }, [userID]);
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
@@ -42,9 +46,12 @@ const Login = () => {
             window.alert("YOU MUST HAVE DONE SOMETHING WRONG.");
         } else {
             const data = await res.json();
+            console.log('Login response data:', data); // Add this line
             setIsLoggedIn(true);
-            setUsername(firstName);
-            // Navigate user to different pages based on userType
+            setUserName(firstName);
+            setUserID(data[0]['Reg. Number']); // Access 'Reg. Number' using bracket notation
+            console.log('userID set:', userID);
+ // Navigate user to different pages based on userType
             switch(userType) {
                 case "Driver":
                     navigate("/");

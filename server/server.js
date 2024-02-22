@@ -6,6 +6,24 @@ const pool = require("./db");
 app.use(cors());
 app.use(express.json());
 
+
+//storing ambulance booking order
+app.post('/bookambulance', async (req, res) => {
+  
+  try {
+    
+      const { user_id, ambulance_id } = req.body;
+      console.log(req.body);
+      console.log('Sending userID:', user_id);
+      console.log('userID from context:', user_id); 
+      const q=await pool.query('INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id") VALUES ($1, $2)', [user_id, ambulance_id]);
+      res.json({ success: true });
+  } catch (err) {
+      console.error(err);
+      res.json({ success: false, message: 'Failed to book ambulance.' });
+  }
+});
+
 //get all doctor info
 app.get("/Hello_Doc", async (req, res) => {
   try {
