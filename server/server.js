@@ -6,50 +6,51 @@ const pool = require("./db");
 app.use(cors());
 app.use(express.json());
 
-
-//storing ambulance booking order
 app.post('/bookambulance', async (req, res) => {
-  
   try {
-    
-      const { user_id, ambulance_id } = req.body;
-      // console.log(req.body);
-      // console.log('Sending userID:', user_id);
-      // console.log('userID from context:', user_id);
-      const check_Amb_Is_Already_Present = await pool.query(
-        'SELECT "Ambulance id" FROM "Hello_Doc"."Order Ambulance" WHERE "Ambulance id"=$1',[ambulance_id] 
-      );
-      if(check_Amb_Is_Already_Present.rows.length>0)
-      {
-        return res.json({success:1});
-      }
+    const { user_id, ambulance_id } = req.body;
+    const check_Amb_Is_Already_Present = await pool.query(
+      'SELECT "Ambulance id" FROM "Hello_Doc"."Order Ambulance" WHERE "Ambulance id"=$1',[ambulance_id] 
+    );
+    if(check_Amb_Is_Already_Present.rows.length>0) {
+      return res.json({success:1});
+    }
 
-      const check_User_Is_Already_Present = await pool.query(
-        'SELECT "user_id" FROM "Hello_Doc"."Order Ambulance" WHERE "user_id"=$1',[user_id] 
-      );
-      if(check_User_Is_Already_Present.rows.length>0)
-      {
-       return res.json({success:2});
-      }
-      
+    const check_User_Is_Already_Present = await pool.query(
+      'SELECT "user_id" FROM "Hello_Doc"."Order Ambulance" WHERE "user_id"=$1',[user_id] 
+    );
+    if(check_User_Is_Already_Present.rows.length>0) {
+      return res.json({success:2});
+    }
 
-       const lastIDFromQuery=await pool.query(
-        'SELECT "ID" FROM "Hello_Doc"."Order Ambulance" ORDER BY "ID" DESC LIMIT 1'
-       );
-       let lastID=0;
-       if(lastIDFromQuery.rows.length>0)
-       {
-        lastID=lastIDFromQuery.rows[0]["ID"];
-       }
-       const newID=lastID+1;
-      const q=await pool.query('INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id","ID") VALUES ($1, $2,$3)', [user_id, ambulance_id,newID]);
-     return res.json({ success: 3 });
+    const lastIDFromQuery=await pool.query(
+      'SELECT "ID" FROM "Hello_Doc"."Order Ambulance" ORDER BY "ID" DESC LIMIT 1'
+    );
+    let lastID=0;
+    if(lastIDFromQuery.rows.length>0) {
+      lastID=lastIDFromQuery.rows[0]["ID"];
+    }
+    const newID=lastID+1;
+    await pool.query('INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id","ID") VALUES ($1, $2,$3)', [user_id, ambulance_id,newID]);
+
+    const userLocationQuery = await pool.query(
+      'SELECT "Location" FROM "Hello_Doc"."User" WHERE "Reg. Number" = $1',
+      [user_id]
+    );
+    if (userLocationQuery.rows.length > 0) {
+      const userLocation = userLocationQuery.rows[0].Location;
+      await pool.query(
+        'UPDATE "Hello_Doc"."Ambulance" SET "Availability" = $1, "Current Location" = $2 WHERE "ID" = $3',
+        [false, userLocation, ambulance_id]
+      );
+    }
+    return res.json({ success: 3 });
   } catch (err) {
-    res.json({ success: 4 });
-     return console.error(err);
-     
+    console.error(err);
+    return res.json({ success: 4 });
   }
 });
+
 
 //get all doctor info
 app.get("/Hello_Doc", async (req, res) => {

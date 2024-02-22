@@ -12,8 +12,9 @@
  Target Server Version : 160001 (160001)
  File Encoding         : 65001
 
- Date: 19/02/2024 23:40:53
+ Date: 23/02/2024 02:21:59
 */
+
 
 -- ----------------------------
 -- Sequence structure for Ambulance Driver_driver_id_seq
@@ -60,10 +61,10 @@ CREATE TABLE "Hello_Doc"."Ambulance" (
 -- ----------------------------
 -- Records of Ambulance
 -- ----------------------------
-INSERT INTO "Hello_Doc"."Ambulance" VALUES (2, '12322432', 't', 't', 'Ibn Sina , Mohammadpur', '$400.00', 't', 'DHK-00221', 'IBH_A');
 INSERT INTO "Hello_Doc"."Ambulance" VALUES (1, '039843734', 'f', 'f', 'Sylhet ', '$50.00', 'f', 'DHK-00331', 'LAID_A');
-INSERT INTO "Hello_Doc"."Ambulance" VALUES (4, '123234344', 'f', 'f', 'New Rajdhani Medical,Puran Dhaka', '$350.00', 't', 'KHL-33221', 'ISIN_A');
 INSERT INTO "Hello_Doc"."Ambulance" VALUES (3, '345465656', 't', 'f', 'Chattogram', '$200.00', 't', 'CTG-11776', 'NRM_A');
+INSERT INTO "Hello_Doc"."Ambulance" VALUES (2, '12322432', 't', 't', 'Dhaka', '$400.00', 'f', 'DHK-00221', 'IBH_A');
+INSERT INTO "Hello_Doc"."Ambulance" VALUES (4, '123234344', 'f', 'f', 'Dhaka', '$350.00', 'f', 'KHL-33221', 'ISIN_A');
 
 -- ----------------------------
 -- Table structure for Ambulance Driver
@@ -297,16 +298,16 @@ CREATE TABLE "Hello_Doc"."Manage Hospital" (
 DROP TABLE IF EXISTS "Hello_Doc"."Order Ambulance";
 CREATE TABLE "Hello_Doc"."Order Ambulance" (
   "Ambulance id" int4 NOT NULL,
-  "User id" int4 NOT NULL,
-  "Place" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "Time" time(6) NOT NULL,
-  "ID" int4 NOT NULL
+  "user_id" int4 NOT NULL,
+  "ID" int4
 )
 ;
 
 -- ----------------------------
 -- Records of Order Ambulance
 -- ----------------------------
+INSERT INTO "Hello_Doc"."Order Ambulance" VALUES (2, 1, 1);
+INSERT INTO "Hello_Doc"."Order Ambulance" VALUES (4, 7, 2);
 
 -- ----------------------------
 -- Table structure for Parking Details
@@ -402,6 +403,14 @@ CREATE TABLE "Hello_Doc"."User" (
 -- Records of User
 -- ----------------------------
 INSERT INTO "Hello_Doc"."User" VALUES ('Siam', 1, 'siam@gmail.com', '12345', 'Dhaka');
+INSERT INTO "Hello_Doc"."User" VALUES ('dsfjbjfb', 2, 'jhvdshjvd@shjbdfh', 'dvsbhdsh', NULL);
+INSERT INTO "Hello_Doc"."User" VALUES ('hsadhjvsdghvsag', 3, 'jhvdshjvd@hsdvfhgsv', 'dvsbhdsh', 'fhdjhsavfdh');
+INSERT INTO "Hello_Doc"."User" VALUES ('sdfvsvdf', 4, 'jhvdshjvd@hdsfbvdh', 'dvsbhdsh', 'sbefnjbeg');
+INSERT INTO "Hello_Doc"."User" VALUES ('jhefdhjwef', 5, 'dscbhmsdb@sdjbsjdb', 'dvsbhdshdsmbhds', 'sjdfbhjbewhf');
+INSERT INTO "Hello_Doc"."User" VALUES ('dshjfvsj', 6, 'jhvdshjvsdkfjbjksdb@dshfbdsb', 'dvsbhdsam', 'dshjfbhjdsb');
+INSERT INTO "Hello_Doc"."User" VALUES ('ALIF AL SHAHRIAR', 7, 'alifbangbig@gmail.com', 'alif12345', 'Dhaka');
+INSERT INTO "Hello_Doc"."User" VALUES ('Siadul Anam Siam', 8, 'siam@gmail.com', 'siam1234', 'Aula');
+INSERT INTO "Hello_Doc"."User" VALUES ('Md Hossain', 9, 'alifbangbig@gmail.com', 'alif12345', '');
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -508,7 +517,7 @@ ALTER TABLE "Hello_Doc"."Order Ambulance" ADD CONSTRAINT "Order Id" UNIQUE ("ID"
 -- ----------------------------
 -- Primary Key structure for table Order Ambulance
 -- ----------------------------
-ALTER TABLE "Hello_Doc"."Order Ambulance" ADD CONSTRAINT "Order Ambulance_pkey" PRIMARY KEY ("Ambulance id", "User id", "ID");
+ALTER TABLE "Hello_Doc"."Order Ambulance" ADD CONSTRAINT "Order Ambulance_pkey" PRIMARY KEY ("Ambulance id", "user_id");
 
 -- ----------------------------
 -- Primary Key structure for table Parking Details
@@ -579,7 +588,7 @@ ALTER TABLE "Hello_Doc"."Manage Hospital" ADD CONSTRAINT "Hos_FK" FOREIGN KEY ("
 -- Foreign Keys structure for table Order Ambulance
 -- ----------------------------
 ALTER TABLE "Hello_Doc"."Order Ambulance" ADD CONSTRAINT "Ambulance_FK" FOREIGN KEY ("Ambulance id") REFERENCES "Hello_Doc"."Ambulance" ("ID") ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE "Hello_Doc"."Order Ambulance" ADD CONSTRAINT "User_FK" FOREIGN KEY ("User id") REFERENCES "Hello_Doc"."User" ("Reg. Number") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "Hello_Doc"."Order Ambulance" ADD CONSTRAINT "User_FK" FOREIGN KEY ("user_id") REFERENCES "Hello_Doc"."User" ("Reg. Number") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- ----------------------------
 -- Foreign Keys structure for table Parking Details
