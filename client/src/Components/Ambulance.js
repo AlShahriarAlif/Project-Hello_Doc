@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { LoginContext } from './logincontext'; 
+import Modal from 'react-modal';
+
+// Make sure to bind modal to your appElement
+//Modal.setAppElement('#yourAppElement')
+// Make sure to bind modal to your appElement
+Modal.setAppElement('#root')
+
 let ambulanceBooked = false;
+
 const Ambulance = () => {
     const { isLoggedIn } = useContext(LoginContext); 
     const [results, setResults] = useState([]);
@@ -8,6 +16,8 @@ const Ambulance = () => {
     const [filterType, setFilterType] = useState('');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
 
     const getData = async () => {
         try {
@@ -64,15 +74,21 @@ const Ambulance = () => {
         }
         if (result.Availability) {
             ambulanceBooked = true; // Set ambulanceBooked to true after booking
-            alert('Ambulance booked successfully!');
+            setSelectedUser(result);
+            setModalIsOpen(true);
         } else {
             alert('Sorry, this ambulance is not available.');
         }
-    }
-    
+    };
 
+    const closeModal = () => {
+        setModalIsOpen(false);
+        ambulanceBooked = false; // Reset ambulanceBooked to false when modal is closed
+    };
+   
     return (
         <div className="text-gray-900 bg-gray-200">
+            {/* ...rest of your code... */}
             <div className="p-4 flex">
                 <h1 className="text-3xl">Users</h1>
                 <input
@@ -110,10 +126,8 @@ const Ambulance = () => {
                 <table className="w-full text-md bg-white shadow-md rounded mb-4">
                     <tbody>
                         <tr className="border-b">
-                            
                             <th className="text-left p-3 px-5">Name</th>
                             <th className="text-left p-3 px-5">Contact</th>
-                            
                             <th className="text-left p-3 px-5">Current Location</th>
                             <th className="text-left p-3 px-5">Price per hour</th>
                             <th className="text-left p-3 px-5">License</th>
@@ -121,10 +135,8 @@ const Ambulance = () => {
                         </tr>
                         {filteredResults.map((result, index) => (
                             <tr key={index} className="border-b hover:bg-orange-100">
-
                                 <td className="p-3 px-5">{result.Name}</td>
                                 <td className="p-3 px-5">{result.Contact}</td>
-
                                 <td className="p-3 px-5">{result['Current Location']}</td>
                                 <td className="p-3 px-5">{result.Price_per_hour}</td>
                                 <td className="p-3 px-5">{result.License}</td>
@@ -136,6 +148,39 @@ const Ambulance = () => {
                     </tbody>
                 </table>
             </div>
+            <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={closeModal}
+                contentLabel="Appointment Modal"
+                style={{
+                    content: {
+                        width: '300px',
+                        height: '200px',
+                        margin: 'auto',
+                        padding: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderRadius: '10px',
+                        boxShadow: '0px 0px 10px 2px rgba(0,0,0,0.1)'
+                    }
+                }}
+            >
+                <h2>Book Appointment</h2>
+                <form>
+                    <label>
+                        Date:
+                        <input type="date" name="appointmentDate" />
+                    </label>
+                    <label>
+                        Price:
+                        <input type="text" value={selectedUser?.Price_per_hour} readOnly />
+                    </label>
+                    <button type="submit">Submit</button>
+                </form>
+                <button onClick={closeModal}>Close</button>
+            </Modal>
         </div>
     );
 }

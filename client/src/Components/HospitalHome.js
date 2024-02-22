@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { LoginContext } from './logincontext'; 
+import { LoginContext } from './logincontext';
+
 let ambulanceBooked = false;
-const Ambulance = () => {
-    const { isLoggedIn } = useContext(LoginContext); 
-    const [results, setResults] = useState([]);
+
+const Hospital = () => {
+    const { isLoggedIn } = useContext(LoginContext);
+    const [ambulanceResults, setAmbulanceResults] = useState([]);
+    const [doctorResults, setDoctorResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
 
-    const getData = async () => {
+    const getAmbulanceData = async () => {
         try {
             const res = await fetch("http://localhost:5000/Hospital_Home", {
                 method: "GET",
@@ -19,14 +22,31 @@ const Ambulance = () => {
                 },
             });
             const data = await res.json();
-            setResults(data);
+            setAmbulanceResults(data);
+        } catch (err) {
+            console.error(err.message);
+        }
+    }
+
+    const getDoctorData = async () => {
+        try {
+            const res = await fetch("http://localhost:5000/Hospital_Doctors", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer YOUR_ACCESS_TOKEN"
+                },
+            });
+            const data = await res.json();
+            setDoctorResults(data);
         } catch (err) {
             console.error(err.message);
         }
     }
 
     useEffect(() => {
-        getData();
+        getAmbulanceData();
+        getDoctorData();
     }, []);
 
     const handleSearch = (e) => {
@@ -45,7 +65,7 @@ const Ambulance = () => {
         setMaxPrice(e.target.value);
     }
 
-    const filteredResults = results.filter(result =>
+    const filteredAmbulanceResults = ambulanceResults.filter(result =>
         (result.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             result.Contact.includes(searchQuery)) &&
         (filterType === '' || (filterType === 'AC' && result.AC) || (filterType === 'MICU' && result.Is_MICU)) &&
@@ -69,62 +89,56 @@ const Ambulance = () => {
             alert('Sorry, this ambulance is not available.');
         }
     }
-    
+
+    // Render Doctor table
+    const renderDoctorTable = () => {
+        return (
+            <table className="w-full text-md bg-white shadow-md rounded mb-4">
+                <tbody>
+                    <tr className="border-b">
+                        <th className="text-left p-3 px-5">Doctor Name</th>
+                        <th className="text-left p-3 px-5">Specialization</th>
+                    </tr>
+                    {doctorResults.map((doctor, index) => (
+                        <tr key={index} className="border-b hover:bg-orange-100">
+                            <td className="p-3 px-5">{doctor.name}</td>
+                            <td className="p-3 px-5">{doctor.specialization}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
 
     return (
         <div className="text-gray-900 bg-gray-200">
+            {/* Ambulance Section */}
             <div className="p-4 flex">
-                <h1 className="text-3xl">Users</h1>
                 <input
                     type="text"
                     placeholder="Search by name or contact"
                     value={searchQuery}
                     onChange={handleSearch}
-                    className="ml-4 px-3 py-1 border rounded"
+                    className="mr-4 px-3 py-1 border rounded"
                 />
-                <select
-                    value={filterType}
-                    onChange={handleFilterTypeChange}
-                    className="ml-4 px-3 py-1 border rounded"
-                >
-                    <option value="">All</option>
-                    <option value="AC">AC</option>
-                    <option value="MICU">MICU</option>
-                </select>
-                <input
-                    type="number"
-                    placeholder="Min Price"
-                    value={minPrice}
-                    onChange={handleMinPriceChange}
-                    className="ml-4 px-3 py-1 border rounded"
-                />
-                <input
-                    type="number"
-                    placeholder="Max Price"
-                    value={maxPrice}
-                    onChange={handleMaxPriceChange}
-                    className="ml-4 px-3 py-1 border rounded"
-                />
+                <button className="mr-4 p-2 bg-blue-500 text-white rounded">Add Ambulance</button>
+                <h1 className="text-3xl">Ambulance</h1>
             </div>
             <div className="px-3 py-4 flex justify-center">
                 <table className="w-full text-md bg-white shadow-md rounded mb-4">
                     <tbody>
                         <tr className="border-b">
-                            
                             <th className="text-left p-3 px-5">Name</th>
                             <th className="text-left p-3 px-5">Contact</th>
-                            
                             <th className="text-left p-3 px-5">Current Location</th>
                             <th className="text-left p-3 px-5">Price per hour</th>
                             <th className="text-left p-3 px-5">License</th>
                             <th></th>
                         </tr>
-                        {filteredResults.map((result, index) => (
+                        {filteredAmbulanceResults.map((result, index) => (
                             <tr key={index} className="border-b hover:bg-orange-100">
-
                                 <td className="p-3 px-5">{result.Name}</td>
                                 <td className="p-3 px-5">{result.Contact}</td>
-
                                 <td className="p-3 px-5">{result['Current Location']}</td>
                                 <td className="p-3 px-5">{result.Price_per_hour}</td>
                                 <td className="p-3 px-5">{result.License}</td>
@@ -136,8 +150,24 @@ const Ambulance = () => {
                     </tbody>
                 </table>
             </div>
+            {/* Doctor Section */}
+            <div className="p-4 flex">
+                <input
+                    type="text"
+                    placeholder="Search by name or contact"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="mr-4 px-3 py-1 border rounded"
+                />
+                <button className="mr-4 p-2 bg-blue-500 text-white rounded">Add Doctor</button>
+                <h1 className="text-3xl">Doctors</h1>
+            </div>
+            <div className="px-3 py-4 flex justify-center">
+                {/* Render doctor table */}
+                {renderDoctorTable()}
+            </div>
         </div>
     );
-}
-
-export default Ambulance;
+    
+                        }    
+export default Hospital;

@@ -49,8 +49,8 @@ const Login = () => {
                 case "Driver":
                     navigate("/");
                     break;
-                case "Hospital_Owner":
-                    navigate("/Hospital");
+                case "Hospital Owner":
+                    navigate("/hospital");
                     break;
                 case "Admin":
                     navigate("/");
