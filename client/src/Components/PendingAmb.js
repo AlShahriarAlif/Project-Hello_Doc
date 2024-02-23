@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { LoginContext } from './logincontext';
 import { AmbulanceLogInContext } from './ambulancelogincotext';
-
+let Order_Confirmed=false;
 const Ambulance = () => {
     const { isLoggedIn, userID } = useContext(LoginContext);
     const { setAmbulanceID } = useContext(AmbulanceLogInContext);
@@ -45,8 +45,13 @@ const Ambulance = () => {
         );
 
         const confirmOrder = async (result) => {
-            console.log(result["Ambulance id"]);
-            console.log(result["Reg. Number"]);
+           if(Order_Confirmed)
+           {
+            alert('You Have Already Confirmed An Order.');
+           }
+           else
+           {
+            
             try{
                 const res = await fetch(`http://localhost:5000/Confirm_Order`, {
                     method:'POST',
@@ -64,6 +69,7 @@ const Ambulance = () => {
                 if(data.success===1)
                 {
                     alert('Order Confirmed');
+                    Order_Confirmed=true;
                 }
                 else
                 {
@@ -74,6 +80,7 @@ const Ambulance = () => {
             {
                 console.error(err.message);
             }
+           }
         };
         
 
