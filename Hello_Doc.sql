@@ -12,7 +12,7 @@
  Target Server Version : 160001 (160001)
  File Encoding         : 65001
 
- Date: 23/02/2024 02:21:59
+ Date: 24/02/2024 05:39:53
 */
 
 
@@ -63,8 +63,8 @@ CREATE TABLE "Hello_Doc"."Ambulance" (
 -- ----------------------------
 INSERT INTO "Hello_Doc"."Ambulance" VALUES (1, '039843734', 'f', 'f', 'Sylhet ', '$50.00', 'f', 'DHK-00331', 'LAID_A');
 INSERT INTO "Hello_Doc"."Ambulance" VALUES (3, '345465656', 't', 'f', 'Chattogram', '$200.00', 't', 'CTG-11776', 'NRM_A');
-INSERT INTO "Hello_Doc"."Ambulance" VALUES (2, '12322432', 't', 't', 'Dhaka', '$400.00', 'f', 'DHK-00221', 'IBH_A');
 INSERT INTO "Hello_Doc"."Ambulance" VALUES (4, '123234344', 'f', 'f', 'Dhaka', '$350.00', 'f', 'KHL-33221', 'ISIN_A');
+INSERT INTO "Hello_Doc"."Ambulance" VALUES (2, '12322432', 't', 't', 'Dhaka', '$400.00', 'f', 'DHK-00221', 'IBH_A');
 
 -- ----------------------------
 -- Table structure for Ambulance Driver
@@ -86,9 +86,9 @@ CREATE TABLE "Hello_Doc"."Ambulance Driver" (
 -- ----------------------------
 INSERT INTO "Hello_Doc"."Ambulance Driver" VALUES (1, 'Abdul Kalam', '1979-07-05', '3242354843', '$3,000.00', '00:00:00', '08:00:00');
 INSERT INTO "Hello_Doc"."Ambulance Driver" VALUES (2, 'Abdul Jabbar', '1980-02-05', '38743748293', '$3,200.00', '08:00:00', '16:00:00');
-INSERT INTO "Hello_Doc"."Ambulance Driver" VALUES (3, 'Mohammad Rafiq', '1979-03-22', '824378234882', '$2,700.00', '16:00:00', '00:00:00');
 INSERT INTO "Hello_Doc"."Ambulance Driver" VALUES (4, 'Abul mia', '1981-04-21', '898767687767', '$3,200.00', '12:00:00', '18:00:00');
 INSERT INTO "Hello_Doc"."Ambulance Driver" VALUES (5, 'Jasim Uddin', '1996-02-12', '78990909870', '$2,700.00', '15:00:00', '21:00:00');
+INSERT INTO "Hello_Doc"."Ambulance Driver" VALUES (3, 'Mohammad Rafiq', '1979-03-22', '824378234882', '$2,700.00', '16:00:00', '00:00:00');
 
 -- ----------------------------
 -- Table structure for Crew info
@@ -299,15 +299,15 @@ DROP TABLE IF EXISTS "Hello_Doc"."Order Ambulance";
 CREATE TABLE "Hello_Doc"."Order Ambulance" (
   "Ambulance id" int4 NOT NULL,
   "user_id" int4 NOT NULL,
-  "ID" int4
+  "ID" int4,
+  "Status" varchar(255) COLLATE "pg_catalog"."default"
 )
 ;
 
 -- ----------------------------
 -- Records of Order Ambulance
 -- ----------------------------
-INSERT INTO "Hello_Doc"."Order Ambulance" VALUES (2, 1, 1);
-INSERT INTO "Hello_Doc"."Order Ambulance" VALUES (4, 7, 2);
+INSERT INTO "Hello_Doc"."Order Ambulance" VALUES (2, 1, 1, 'Confirmed');
 
 -- ----------------------------
 -- Table structure for Parking Details

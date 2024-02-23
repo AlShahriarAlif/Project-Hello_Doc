@@ -16,10 +16,10 @@ const Navbar = () => {
         <ul className="navbar-nav ml-auto">
           <div className="hori-selector"><div className="left"></div><div className="right"></div></div>
           <li className="nav-item">
-            <Link to="/Orderedamb" className="nav-link"><i className="fas fa-tachometer-alt"></i>Ordered Record</Link>
+            <Link to="/Orderedamb" className="nav-link"><i className="fas fa-tachometer-alt"></i>Order History</Link>
           </li>
           <li className="nav-item">
-            <Link to="/Pendingamb" className="nav-link"><i className="far fa-clone"></i>Pending Record</Link>
+            <Link to="/Pendingamb" className="nav-link"><i className="far fa-clone"></i>Pending Orders</Link>
           </li>
           <li className="nav-item">
             <Link to="/ServedHos" className="nav-link"><i className="far fa-calendar-alt"></i>Served Hospital</Link>

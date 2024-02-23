@@ -6,6 +6,24 @@ const pool = require("./db");
 app.use(cors());
 app.use(express.json());
 
+app.post('/Confirm_Order',async(req,res)=>{
+  try{
+    const {amb_id,user_id}=req.body;
+    console.log(amb_id);
+    console.log(user_id);
+    const q = await pool.query(
+      'UPDATE "Hello_Doc"."Order Ambulance" SET "Status"=$1 WHERE "Ambulance id"=$2 AND "user_id"=$3',[`Confirmed`,amb_id,user_id]
+    )
+    return res.json({success:1});
+  }
+  catch(err)
+  {
+    console.error(err);
+    return res.json({success:2});
+  }
+
+});
+
 app.post('/bookambulance', async (req, res) => {
   try {
     const { user_id, ambulance_id } = req.body;
@@ -144,11 +162,11 @@ app.get("/Pending_AmbOrder/:ID", async (req, res) => {
     console.log("Pending data");
     const { ID } = req.params;
     const q = await pool.query(
-      `SELECT "Order Ambulance"."Ambulance id", "User"."Name", "Order Ambulance"."Status"
-      FROM "Order Ambulance"
-      JOIN "Driver Info" ON "Order Ambulance"."Ambulance id" = "Driver Info"."ambulance_id"
-      JOIN "User" ON "Order Ambulance"."user_id" = "User"."Reg. Number"
-      WHERE "Driver Info"."driver_id" = $1 AND "Order Ambulance"."Status" = 'Pending';`, [ID]
+      `SELECT "Hello_Doc"."Order Ambulance"."Ambulance id", "Hello_Doc"."User"."Reg. Number","Hello_Doc"."User"."Name", "Hello_Doc"."Order Ambulance"."Status","Hello_Doc"."User"."Location","Hello_Doc"."User"."Email"
+      FROM "Hello_Doc"."Order Ambulance"
+      JOIN "Hello_Doc"."Driver Info" ON "Hello_Doc"."Order Ambulance"."Ambulance id" = "Hello_Doc"."Driver Info"."ambulance_id"
+      JOIN "Hello_Doc"."User" ON "Hello_Doc"."Order Ambulance"."user_id" = "Hello_Doc"."User"."Reg. Number"
+      WHERE "Hello_Doc"."Driver Info"."driver_id" = $1 AND "Hello_Doc"."Order Ambulance"."Status" = 'Pending';`, [ID]
     );
     //console.log("req coming");
     console.log(q.rows);
