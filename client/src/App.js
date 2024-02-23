@@ -10,6 +10,10 @@ import Login from './Components/login';
 import Resigtration from './Components/Registration';
 import Test3 from './Components/test3';
 import Hospitalhome from './Components/HospitalHome';
+import DriverHome from './Components/DriverHome';
+import Pendingamb from './Components/PendingAmb';
+import Orderamb from './Components/OrderAmb';
+import ServedHos from './Components/ServedHospital';
 // Import other components as needed
 function App() {
   return (
@@ -26,6 +30,10 @@ function App() {
           <Route path="/Registration" element = {<Resigtration/>}/>
           <Route path='/test3' element ={<Test3/>}/>
           <Route path='/hospital' element ={<Hospitalhome/>}/>
+          <Route path='/Driver' element ={<DriverHome/>}/>
+          <Route path='/Pendingamb' element ={<Pendingamb/>}/>
+          <Route path='/Orderedamb' element ={<Orderamb/>}/>
+          <Route path='/ServedHos' element ={<ServedHos/>}/>
           {/* Add more routes as needed */}
         </Routes>
         </Fragment>

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import { LoginContext } from './logincontext';
 
-import "./homepage.css"; 
+import "./DriverHome.css"; 
 
 const Navbar = () => {
   
@@ -16,13 +16,13 @@ const Navbar = () => {
         <ul className="navbar-nav ml-auto">
           <div className="hori-selector"><div className="left"></div><div className="right"></div></div>
           <li className="nav-item">
-            <Link to="/hospital" className="nav-link"><i className="fas fa-tachometer-alt"></i>HOSPITALS</Link>
+            <Link to="/Orderedamb" className="nav-link"><i className="fas fa-tachometer-alt"></i>Ordered Record</Link>
           </li>
           <li className="nav-item">
-            <Link to="/ambulance" className="nav-link"><i className="far fa-clone"></i>Ambulance</Link>
+            <Link to="/Pendingamb" className="nav-link"><i className="far fa-clone"></i>Pending Record</Link>
           </li>
           <li className="nav-item">
-            <Link to="/doctors" className="nav-link"><i className="far fa-calendar-alt"></i>Doctor</Link>
+            <Link to="/ServedHos" className="nav-link"><i className="far fa-calendar-alt"></i>Served Hospital</Link>
           </li>
           <li className="nav-item">
             {isLoggedIn ? (

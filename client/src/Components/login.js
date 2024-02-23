@@ -30,7 +30,7 @@ const Login = () => {
                 loginUrl = "http://localhost:5000/login/Hospital";
                 break;
             case "Admin":
-                loginUrl = "http://localhost:5000/login/admin";
+                loginUrl = "http://localhost:5000/login/Admin";
                 break;
             default:
                 loginUrl = "http://localhost:5000/login"; // Default to Normal User
@@ -49,12 +49,14 @@ const Login = () => {
             console.log('Login response data:', data); // Add this line
             setIsLoggedIn(true);
             setUserName(firstName);
-            setUserID(data[0]['Reg. Number']); // Access 'Reg. Number' using bracket notation
-            console.log('userID set:', userID);
+             // Access 'Reg. Number' using bracket notation
+            
  // Navigate user to different pages based on userType
             switch(userType) {
                 case "Driver":
-                    navigate("/");
+                    setUserID(data[0]['driver_id']);
+                    console.log('userID set:', userID);
+                    navigate("/Driver");
                     break;
                 case "Hospital Owner":
                     navigate("/hospital");
@@ -63,6 +65,8 @@ const Login = () => {
                     navigate("/");
                     break;
                 default:
+                    setUserID(data[0]['Reg. Number']);
+                    console.log('userID set:', userID);
                     navigate("/ambulance"); // Default to Normal User
             }
             //console.log(setID);

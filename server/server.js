@@ -31,7 +31,11 @@ app.post('/bookambulance', async (req, res) => {
       lastID=lastIDFromQuery.rows[0]["ID"];
     }
     const newID=lastID+1;
-    await pool.query('INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id","ID") VALUES ($1, $2,$3)', [user_id, ambulance_id,newID]);
+    await pool.query(
+      'INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id", "ID", "Status") VALUES ($1, $2, $3, $4)', 
+      [user_id, ambulance_id, newID, "Pending"]
+  );
+  
 
     const userLocationQuery = await pool.query(
       'SELECT "Location" FROM "Hello_Doc"."User" WHERE "Reg. Number" = $1',
@@ -42,7 +46,7 @@ app.post('/bookambulance', async (req, res) => {
       await pool.query(
         'UPDATE "Hello_Doc"."Ambulance" SET "Availability" = $1, "Current Location" = $2 WHERE "ID" = $3',
         [false, userLocation, ambulance_id]
-      );
+    );
     }
     return res.json({ success: 3 });
   } catch (err) {
@@ -134,6 +138,25 @@ app.post("/login", async (req, res) => {
     console.error(err.message);
   }
 })
+//Pending Ambulance Order Under An Ambulance
+app.get("/Pending_AmbOrder/:ID", async (req, res) => {
+  try {
+    console.log("Pending data");
+    const { ID } = req.params;
+    const q = await pool.query(
+      `SELECT "Order Ambulance"."Ambulance id", "User"."Name", "Order Ambulance"."Status"
+      FROM "Order Ambulance"
+      JOIN "Driver Info" ON "Order Ambulance"."Ambulance id" = "Driver Info"."ambulance_id"
+      JOIN "User" ON "Order Ambulance"."user_id" = "User"."Reg. Number"
+      WHERE "Driver Info"."driver_id" = $1 AND "Order Ambulance"."Status" = 'Pending';`, [ID]
+    );
+    //console.log("req coming");
+    console.log(q.rows);
+    return res.json(q.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 //Ambulace driver log in
 app.post("/login/Driver", async (req, res) => {
@@ -182,7 +205,7 @@ app.post("/login/Hospital", async (req, res) => {
 })
 
 //Admin log in
-app.post("/login/Hospital", async (req, res) => {
+app.post("/login/Admin", async (req, res) => {
   try {
     console.log("log in req coming for Admin");
     const {firstName,password} = req.body;
