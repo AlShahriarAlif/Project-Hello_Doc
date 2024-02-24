@@ -14,6 +14,20 @@ app.post('/Confirm_Order',async(req,res)=>{
     const q = await pool.query(
       'UPDATE "Hello_Doc"."Order Ambulance" SET "Status"=$1 WHERE "Ambulance id"=$2 AND "user_id"=$3',[`Confirmed`,amb_id,user_id]
     )
+    const r=await pool.query(
+      'DELETE FROM "Hello_Doc"."Order Ambulance" WHERE "Status"=$1 AND "user_id"=$2',['Pending',user_id]
+    )
+    const userLocationQuery = await pool.query(
+      'SELECT "Location" FROM "Hello_Doc"."User" WHERE "Reg. Number" = $1',
+      [user_id]
+    );
+    if (userLocationQuery.rows.length > 0) {
+      const userLocation = userLocationQuery.rows[0].Location;
+      await pool.query(
+        'UPDATE "Hello_Doc"."Ambulance" SET "Availability" = $1, "Current Location" = $2 WHERE "ID" = $3',
+        [false, userLocation, amb_id]
+    );
+    }
     return res.json({success:1});
   }
   catch(err)
@@ -27,18 +41,12 @@ app.post('/Confirm_Order',async(req,res)=>{
 app.post('/bookambulance', async (req, res) => {
   try {
     const { user_id, ambulance_id } = req.body;
-    const check_Amb_Is_Already_Present = await pool.query(
-      'SELECT "Ambulance id" FROM "Hello_Doc"."Order Ambulance" WHERE "Ambulance id"=$1',[ambulance_id] 
+    const let_him_book = await pool.query(
+      'SELECT "Hello_Doc"."Order Ambulance"."user_id" FROM "Hello_Doc"."Order Ambulance" WHERE "user_id"=$1 AND "Status"=$2',[user_id,'Confirmed']
     );
-    if(check_Amb_Is_Already_Present.rows.length>0) {
+    if(let_him_book.rows.length>0)
+    {
       return res.json({success:1});
-    }
-
-    const check_User_Is_Already_Present = await pool.query(
-      'SELECT "user_id" FROM "Hello_Doc"."Order Ambulance" WHERE "user_id"=$1',[user_id] 
-    );
-    if(check_User_Is_Already_Present.rows.length>0) {
-      return res.json({success:2});
     }
 
     const lastIDFromQuery=await pool.query(
@@ -55,17 +63,7 @@ app.post('/bookambulance', async (req, res) => {
   );
   
 
-    const userLocationQuery = await pool.query(
-      'SELECT "Location" FROM "Hello_Doc"."User" WHERE "Reg. Number" = $1',
-      [user_id]
-    );
-    if (userLocationQuery.rows.length > 0) {
-      const userLocation = userLocationQuery.rows[0].Location;
-      await pool.query(
-        'UPDATE "Hello_Doc"."Ambulance" SET "Availability" = $1, "Current Location" = $2 WHERE "ID" = $3',
-        [false, userLocation, ambulance_id]
-    );
-    }
+    
     return res.json({ success: 3 });
   } catch (err) {
     console.error(err);

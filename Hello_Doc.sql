@@ -12,7 +12,7 @@
  Target Server Version : 160001 (160001)
  File Encoding         : 65001
 
- Date: 24/02/2024 05:39:53
+ Date: 24/02/2024 06:21:26
 */
 
 
@@ -62,9 +62,9 @@ CREATE TABLE "Hello_Doc"."Ambulance" (
 -- Records of Ambulance
 -- ----------------------------
 INSERT INTO "Hello_Doc"."Ambulance" VALUES (1, '039843734', 'f', 'f', 'Sylhet ', '$50.00', 'f', 'DHK-00331', 'LAID_A');
-INSERT INTO "Hello_Doc"."Ambulance" VALUES (3, '345465656', 't', 'f', 'Chattogram', '$200.00', 't', 'CTG-11776', 'NRM_A');
-INSERT INTO "Hello_Doc"."Ambulance" VALUES (4, '123234344', 'f', 'f', 'Dhaka', '$350.00', 'f', 'KHL-33221', 'ISIN_A');
-INSERT INTO "Hello_Doc"."Ambulance" VALUES (2, '12322432', 't', 't', 'Dhaka', '$400.00', 'f', 'DHK-00221', 'IBH_A');
+INSERT INTO "Hello_Doc"."Ambulance" VALUES (4, '123234344', 'f', 'f', 'Ibn Sina Hospital,Khulna', '$350.00', 't', 'KHL-33221', 'ISIN_A');
+INSERT INTO "Hello_Doc"."Ambulance" VALUES (2, '12322432', 't', 't', 'Islami Bank Hospital,Dhaka', '$400.00', 't', 'DHK-00221', 'IBH_A');
+INSERT INTO "Hello_Doc"."Ambulance" VALUES (3, '345465656', 't', 'f', 'Dhaka', '$200.00', 'f', 'CTG-11776', 'NRM_A');
 
 -- ----------------------------
 -- Table structure for Ambulance Driver
@@ -307,7 +307,7 @@ CREATE TABLE "Hello_Doc"."Order Ambulance" (
 -- ----------------------------
 -- Records of Order Ambulance
 -- ----------------------------
-INSERT INTO "Hello_Doc"."Order Ambulance" VALUES (2, 1, 1, 'Confirmed');
+INSERT INTO "Hello_Doc"."Order Ambulance" VALUES (3, 1, 1, 'Confirmed');
 
 -- ----------------------------
 -- Table structure for Parking Details

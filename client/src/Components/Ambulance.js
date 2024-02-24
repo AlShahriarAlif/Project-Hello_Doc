@@ -95,16 +95,16 @@ const Ambulance = () => {
                 });
                 const data = await response.json();
                 if(data.success===3){
-                    alert('Ambulance booked successfully!');
+                    alert('Ambulance request is pending.Please wait for the confirmation of driver.');
 
                 }
+                // else if(data.success===1)
+                // {
+                //     alert('Ambulance is not present available');
+                // }
                 else if(data.success===1)
                 {
-                    alert('Ambulance is not present available');
-                }
-                else if(data.success===2)
-                {
-                    alert('you have already ordered an Ambulance before . ');
+                    alert('You have already booked an ambulance . ');
                 }
                 else{
                     alert('Maybe Some error occured our team is working on it');
