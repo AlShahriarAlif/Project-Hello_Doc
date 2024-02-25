@@ -1,20 +1,22 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { LoginContext } from './logincontext';
+import { AmbulanceLogInContext } from './ambulancelogincotext';
+import Modal from 'react-modal';
 
-let ambulanceBooked = false;
+Modal.setAppElement('#root');
 
-const Hospital = () => {
-    const { isLoggedIn } = useContext(LoginContext);
-    const [ambulanceResults, setAmbulanceResults] = useState([]);
-    const [doctorResults, setDoctorResults] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterType, setFilterType] = useState('');
-    const [minPrice, setMinPrice] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
+const HospitalHome = () => {
+    const { isLoggedIn, userID } = useContext(LoginContext);
+    const { setAmbulanceID } = useContext(AmbulanceLogInContext);
+    const [results, setResults] = useState([]);
+    const [locationSearchQuery, setLocationSearchQuery] = useState('');
+    const [nameSearchQuery, setNameSearchQuery] = useState('');
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
 
-    const getAmbulanceData = async () => {
+    const getData = async () => {
         try {
-            const res = await fetch("http://localhost:5000/Hospital_Home", {
+            const res = await fetch("http://localhost:5000/AllHospital", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -22,152 +24,92 @@ const Hospital = () => {
                 },
             });
             const data = await res.json();
-            setAmbulanceResults(data);
-        } catch (err) {
-            console.error(err.message);
-        }
-    }
-
-    const getDoctorData = async () => {
-        try {
-            const res = await fetch("http://localhost:5000/Hospital_Doctors", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer YOUR_ACCESS_TOKEN"
-                },
-            });
-            const data = await res.json();
-            setDoctorResults(data);
+            setResults(data);
         } catch (err) {
             console.error(err.message);
         }
     }
 
     useEffect(() => {
-        getAmbulanceData();
-        getDoctorData();
+        getData();
     }, []);
 
-    const handleSearch = (e) => {
-        setSearchQuery(e.target.value);
+    const handleLocationSearch = (e) => {
+        setLocationSearchQuery(e.target.value);
     }
 
-    const handleFilterTypeChange = (e) => {
-        setFilterType(e.target.value);
+    const handleNameSearch = (e) => {
+        setNameSearchQuery(e.target.value);
     }
 
-    const handleMinPriceChange = (e) => {
-        setMinPrice(e.target.value);
-    }
-
-    const handleMaxPriceChange = (e) => {
-        setMaxPrice(e.target.value);
-    }
-
-    const filteredAmbulanceResults = ambulanceResults.filter(result =>
-        (result.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            result.Contact.includes(searchQuery)) &&
-        (filterType === '' || (filterType === 'AC' && result.AC) || (filterType === 'MICU' && result.Is_MICU)) &&
-        (!minPrice || parseFloat(result.Price_per_hour.slice(1)) >= parseFloat(minPrice)) &&
-        (!maxPrice || parseFloat(result.Price_per_hour.slice(1)) <= parseFloat(maxPrice))
+    const filteredResults = results.filter(result =>
+        result.Location.toLowerCase().includes(locationSearchQuery.toLowerCase()) &&
+        result.hos_name.toLowerCase().includes(nameSearchQuery.toLowerCase())
     );
 
-    const bookAmbulance = (result) => {
-        if (!isLoggedIn) {
-            alert('You must log in first.');
-            return;
-        }
-        if (ambulanceBooked) {
-            alert('You can order at most one ambulance at a time.');
-            return;
-        }
-        if (result.Availability) {
-            ambulanceBooked = true; // Set ambulanceBooked to true after booking
-            alert('Ambulance booked successfully!');
-        } else {
-            alert('Sorry, this ambulance is not available.');
-        }
-    }
+    const handleViewDetails = (user) => {
+        // Implement your logic to view details
+        console.log(user);
+    };
 
-    // Render Doctor table
-    const renderDoctorTable = () => {
-        return (
-            <table className="w-full text-md bg-white shadow-md rounded mb-4">
+    return (
+    <div className="text-gray-900 bg-blue-200">
+        <div className="p-4 flex">
+            <h1 className="text-3xl">Hospitals</h1>
+            <input
+                type="text"
+                placeholder="Search by Location"
+                value={locationSearchQuery}
+                onChange={handleLocationSearch}
+                className="ml-4 px-3 py-1 border rounded"
+            />
+            <input
+                type="text"
+                placeholder="Search by Name"
+                value={nameSearchQuery}
+                onChange={handleNameSearch}
+                className="ml-4 px-3 py-1 border rounded"
+            />
+        </div>
+        <div className="px-3 py-4 flex justify-center">
+            <table className="w-full text-md bg-gray-100 shadow-md rounded mb-4">
                 <tbody>
                     <tr className="border-b">
-                        <th className="text-left p-3 px-5">Doctor Name</th>
-                        <th className="text-left p-3 px-5">Specialization</th>
+                        <th className="text-left p-3 px-5">Hospital Name</th>
+                        <th className="text-left p-3 px-5">Email</th>
+                        <th className="text-left p-3 px-5">Location</th>
+                        <th className="text-left p-3 px-5">Rating</th>
+                        <th></th>
                     </tr>
-                    {doctorResults.map((doctor, index) => (
+                    {filteredResults.map((result, index) => (
                         <tr key={index} className="border-b hover:bg-orange-100">
-                            <td className="p-3 px-5">{doctor.name}</td>
-                            <td className="p-3 px-5">{doctor.specialization}</td>
+                            <td className="p-3 px-5">{result.hos_name}</td>
+                            <td className="p-3 px-5">{result.email}</td>
+                            <td className="p-3 px-5">{result.Location}</td>
+                            <td className="p-3 px-5">{result.Rating}</td> {/* Assuming 'rating' is a property in 'result' */}
+                            <td className="p-3 px-5">
+                                <button
+                                    onClick={() => handleViewDetails(result)}
+                                    style={{
+                                        backgroundColor: "#FFA500",
+                                        borderRadius: "8px",
+                                        padding: "8px 16px",
+                                        color: "white",
+                                        border: "none",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    View Details
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-        );
-    }
-
-    return (
-        <div className="text-gray-900 bg-gray-200">
-            {/* Ambulance Section */}
-            <div className="p-4 flex">
-                <input
-                    type="text"
-                    placeholder="Search by name or contact"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    className="mr-4 px-3 py-1 border rounded"
-                />
-                <button className="mr-4 p-2 bg-blue-500 text-white rounded">Add Ambulance</button>
-                <h1 className="text-3xl">Ambulance</h1>
-            </div>
-            <div className="px-3 py-4 flex justify-center">
-                <table className="w-full text-md bg-white shadow-md rounded mb-4">
-                    <tbody>
-                        <tr className="border-b">
-                            <th className="text-left p-3 px-5">Name</th>
-                            <th className="text-left p-3 px-5">Contact</th>
-                            <th className="text-left p-3 px-5">Current Location</th>
-                            <th className="text-left p-3 px-5">Price per hour</th>
-                            <th className="text-left p-3 px-5">License</th>
-                            <th></th>
-                        </tr>
-                        {filteredAmbulanceResults.map((result, index) => (
-                            <tr key={index} className="border-b hover:bg-orange-100">
-                                <td className="p-3 px-5">{result.Name}</td>
-                                <td className="p-3 px-5">{result.Contact}</td>
-                                <td className="p-3 px-5">{result['Current Location']}</td>
-                                <td className="p-3 px-5">{result.Price_per_hour}</td>
-                                <td className="p-3 px-5">{result.License}</td>
-                                <td className="p-3 px-5">
-                                    <button onClick={() => bookAmbulance(result)}>Book</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            {/* Doctor Section */}
-            <div className="p-4 flex">
-                <input
-                    type="text"
-                    placeholder="Search by name or contact"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    className="mr-4 px-3 py-1 border rounded"
-                />
-                <button className="mr-4 p-2 bg-blue-500 text-white rounded">Add Doctor</button>
-                <h1 className="text-3xl">Doctors</h1>
-            </div>
-            <div className="px-3 py-4 flex justify-center">
-                {/* Render doctor table */}
-                {renderDoctorTable()}
-            </div>
         </div>
-    );
-    
-                        }    
-export default Hospital;
+    </div>
+);
+
+}
+
+export default HospitalHome;

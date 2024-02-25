@@ -6,36 +6,49 @@ const pool = require("./db");
 app.use(cors());
 app.use(express.json());
 
-app.post('/Confirm_Order',async(req,res)=>{
-  try{
-    const {amb_id,user_id}=req.body;
-    console.log(amb_id);
-    console.log(user_id);
-    const q = await pool.query(
-      'UPDATE "Hello_Doc"."Order Ambulance" SET "Status"=$1 WHERE "Ambulance id"=$2 AND "user_id"=$3',[`Confirmed`,amb_id,user_id]
-    )
-    const r=await pool.query(
-      'DELETE FROM "Hello_Doc"."Order Ambulance" WHERE "Status"=$1 AND "user_id"=$2',['Pending',user_id]
-    )
-    const userLocationQuery = await pool.query(
-      'SELECT "Location" FROM "Hello_Doc"."User" WHERE "Reg. Number" = $1',
-      [user_id]
-    );
-    if (userLocationQuery.rows.length > 0) {
-      const userLocation = userLocationQuery.rows[0].Location;
-      await pool.query(
-        'UPDATE "Hello_Doc"."Ambulance" SET "Availability" = $1, "Current Location" = $2 WHERE "ID" = $3',
-        [false, userLocation, amb_id]
-    );
-    }
-    return res.json({success:1});
-  }
-  catch(err)
-  {
-    console.error(err);
-    return res.json({success:2});
-  }
+// app.post('/Confirm_Order',async(req,res)=>{
+//   try{
+//     const {amb_id,user_id}=req.body;
+//     console.log(amb_id);
+//     console.log(user_id);
+//     const q = await pool.query(
+//       'UPDATE "Hello_Doc"."Order Ambulance" SET "Status"=$1 WHERE "Ambulance id"=$2 AND "user_id"=$3',[`Confirmed`,amb_id,user_id]
+//     )
+//     const r=await pool.query(
+//       'DELETE FROM "Hello_Doc"."Order Ambulance" WHERE "Status"=$1 AND "user_id"=$2',['Pending',user_id]
+//     )
+//     const userLocationQuery = await pool.query(
+//       'SELECT "Location" FROM "Hello_Doc"."User" WHERE "Reg. Number" = $1',
+//       [user_id]
+//     );
+//     if (userLocationQuery.rows.length > 0) {
+//       const userLocation = userLocationQuery.rows[0].Location;
+//       await pool.query(
+//         'UPDATE "Hello_Doc"."Ambulance" SET "Availability" = $1, "Current Location" = $2 WHERE "ID" = $3',
+//         [false, userLocation, amb_id]
+//     );
+//     }
+//     return res.json({success:1});
+//   }
+//   catch(err)
+//   {
+//     console.error(err);
+//     return res.json({success:2});
+//   }
 
+// });
+app.post('/Confirm_Order', async(req, res) => {
+  try {
+      const { amb_id, user_id } = req.body;
+      const result = await pool.query(
+          'SELECT * FROM confirm_order($1, $2)',
+          [amb_id, user_id]
+      );
+      res.json(result.rows[0]);
+  } catch(err) {
+      console.error(err.message);
+      res.json({ success: 2 });
+  }
 });
 
 app.post('/bookambulance', async (req, res) => {
@@ -70,7 +83,23 @@ app.post('/bookambulance', async (req, res) => {
     return res.json({ success: 4 });
   }
 });
+//All the Hospital
+//get all doctor info
+app.get("/AllHospital", async (req, res) => {
+  try {
+    console.log("req coming");
+    const q = await pool.query(
+      'SELECT H2."hos_id", H2."hos_name", H2."Location", H2."email", H1."Rating" ' +
+      'FROM "Hello_Doc"."Hos_Rating" H1 ' +
+      'JOIN "Hello_Doc"."Hospital" H2 ON (H1."Hos_ID" = H2."hos_id")'
+    );
+    console.log(q.rows);
+    return res.json(q.rows);
 
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 //get all doctor info
 app.get("/Hello_Doc", async (req, res) => {
@@ -399,3 +428,34 @@ app.get("/Hello_Doc/search/avail", async (req, res) => {
 app.listen(5000, () => {
   console.log("Connected.");
 });
+
+// CREATE OR REPLACE FUNCTION confirm_order(amb_id_param INT, user_id_param INT)
+// RETURNS TABLE(success INT, message TEXT) AS $$
+// DECLARE
+//     existing_order_count INT;
+// BEGIN
+//     SELECT COUNT(*) INTO existing_order_count
+//     FROM "Hello_Doc"."Order Ambulance"
+//     WHERE "Status" = 'Confirmed' AND "user_id" = user_id_param;
+
+//     IF existing_order_count > 0 THEN
+//         success := 0;
+//         message := 'You have already confirmed an order.';
+//         RETURN QUERY SELECT success, message;
+//     ELSE
+//         UPDATE "Hello_Doc"."Order Ambulance"
+//         SET "Status" = 'Confirmed'
+//         WHERE "Ambulance id" = amb_id_param AND "user_id" = user_id_param;
+
+//         -- ... rest of your code ...
+
+//         success := 1;
+//         message := 'Order confirmed.';
+//         RETURN QUERY SELECT success, message;
+//     END IF;
+// EXCEPTION
+//     WHEN OTHERS THEN
+//         success := 2;
+//         message := SQLERRM;
+//         RETURN QUERY SELECT success, message;
+// END; $$ LANGUAGE plpgsql;

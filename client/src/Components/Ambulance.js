@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { LoginContext } from './logincontext'; 
-import { AmbulanceLogInContext} from './ambulancelogincotext';
+import { LoginContext } from './logincontext';
+import { AmbulanceLogInContext } from './ambulancelogincotext';
 import Modal from 'react-modal';
 
 // Make sure to bind modal to your appElement
@@ -11,9 +11,9 @@ Modal.setAppElement('#root')
 let ambulanceBooked = false;
 
 const Ambulance = () => {
-    const { isLoggedIn,userID } = useContext(LoginContext);
-    const {setAmbulanceID}=useContext(AmbulanceLogInContext); 
-     const [results, setResults] = useState([]);
+    const { isLoggedIn, userID } = useContext(LoginContext);
+    const { setAmbulanceID } = useContext(AmbulanceLogInContext);
+    const [results, setResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('');
     const [minPrice, setMinPrice] = useState('');
@@ -65,7 +65,7 @@ const Ambulance = () => {
         (!maxPrice || parseFloat(result.Price_per_hour.slice(1)) <= parseFloat(maxPrice))
     );
 
-    const bookAmbulance = async(result) => {
+    const bookAmbulance = async (result) => {
         if (!isLoggedIn) {
             alert('You must log in first.');
             return;
@@ -76,25 +76,25 @@ const Ambulance = () => {
         }
         if (result.Availability) {
             ambulanceBooked = true; // Set ambulanceBooked to true after booking
-             setAmbulanceID(result.ID);
-             setSelectedUser(result);
-             setModalIsOpen(true);
+            setAmbulanceID(result.ID);
+            setSelectedUser(result);
+            setModalIsOpen(true);
             try {
-                const response = await fetch('http://localhost:5000/bookambulance',{
-                    
+                const response = await fetch('http://localhost:5000/bookambulance', {
 
-                method:'POST',
-                headers :{
-                    'Content-Type':'application/json',
-                },
-                body: JSON.stringify({
-                    user_id :userID,
-                    ambulance_id:result.ID,
-                    
-                }) ,   
+
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userID,
+                        ambulance_id: result.ID,
+
+                    }),
                 });
                 const data = await response.json();
-                if(data.success===3){
+                if (data.success === 3) {
                     alert('Ambulance request is pending.Please wait for the confirmation of driver.');
 
                 }
@@ -102,22 +102,21 @@ const Ambulance = () => {
                 // {
                 //     alert('Ambulance is not present available');
                 // }
-                else if(data.success===1)
-                {
+                else if (data.success === 1) {
                     alert('You have already booked an ambulance . ');
                 }
-                else{
+                else {
                     alert('Maybe Some error occured our team is working on it');
                 }
 
             }
-            catch(err){
+            catch (err) {
                 console.error(err);
                 alert('Failed to book ambulance.');
             }
-          
+
         }
-         else {
+        else {
             alert('Sorry, this ambulance is not available.');
         }
     };
@@ -126,7 +125,7 @@ const Ambulance = () => {
         setModalIsOpen(false);
         ambulanceBooked = false; // Reset ambulanceBooked to false when modal is closed
     };
-   
+
     return (
         <div className="text-gray-900 bg-gray-200">
             {/* ...rest of your code... */}
@@ -190,38 +189,41 @@ const Ambulance = () => {
                 </table>
             </div>
             <Modal
-                isOpen={modalIsOpen}
-                onRequestClose={closeModal}
-                contentLabel="Appointment Modal"
-                style={{
-                    content: {
-                        width: '300px',
-                        height: '200px',
-                        margin: 'auto',
-                        padding: '20px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        borderRadius: '10px',
-                        boxShadow: '0px 0px 10px 2px rgba(0,0,0,0.1)'
-                    }
-                }}
-            >
-                <h2>Book Appointment</h2>
-                <form>
-                    <label>
-                        Date:
-                        <input type="date" name="appointmentDate" />
-                    </label>
-                    <label>
-                        Price:
-                        <input type="text" value={selectedUser?.Price_per_hour} readOnly />
-                    </label>
-                    <button type="submit">Submit</button>
-                </form>
-                <button onClick={closeModal}>Close</button>
-            </Modal>
+    isOpen={modalIsOpen}
+    onRequestClose={closeModal}
+    contentLabel="Appointment Modal"
+    style={{
+        content: {
+            width: '300px',
+            height: '200px',
+            margin: 'auto',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderRadius: '10px',
+            boxShadow: '0px 0px 10px 2px rgba(0,0,0,0.1)',
+            overflowY: 'auto' // Added to make all content scrollable
+        }
+    }}
+>
+    <h2>Book Appointment</h2>
+    <form style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <label style={{ marginBottom: '10px', width: '100%' }}> {/* Added width to align the label */}
+            Date:
+            <input type="date" name="appointmentDate" style={{ width: '100%', marginTop: '5px' }} />
+        </label>
+        <label style={{ marginBottom: '10px', width: '100%' }}> {/* Added width to align the label */}
+            Price:
+            <input type="text" value={selectedUser?.Price_per_hour} readOnly style={{ width: '100%', marginTop: '5px' }} />
+        </label>
+        <button type="submit" style={{ alignSelf: 'center', backgroundColor: '#3498db', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}>Submit</button> {/* Blue submit button */}
+    </form>
+    <button onClick={closeModal} style={{ alignSelf: 'flex-end', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: '#c0392b' }}>Close</button> {/* Red close button */}
+</Modal>
+
+
         </div>
     );
 }
