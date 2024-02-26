@@ -14,31 +14,32 @@ import DriverHome from './Components/DriverHome';
 import Pendingamb from './Components/PendingAmb';
 import Orderamb from './Components/OrderAmb';
 import ServedHos from './Components/ServedHospital';
-// Import other components as needed
+import HospitalDetail from './Components/HospitalDetail'; // Import HospitalDetail component
+
 function App() {
   return (
     <Router>
       <LoginProvider>
-      <Fragment>
-        {/* Define your routes inside the Routes component */}
-        <Routes>
-        <Route path="/login" element={<Login/>} />
-          <Route path="/" element={<Test />} />
-          <Route path="/doctors" element={<SearchDoc />} />
-          <Route path="/ambulance" element={<Searchamb />} />
-          <Route path="/test" element = {<Test1/>}/>
-          <Route path="/Registration" element = {<Resigtration/>}/>
-          <Route path='/test3' element ={<Test3/>}/>
-          <Route path='/hospital' element ={<Hospitalhome/>}/>
-          <Route path='/Driver' element ={<DriverHome/>}/>
-          <Route path='/Pendingamb' element ={<Pendingamb/>}/>
-          <Route path='/Orderedamb' element ={<Orderamb/>}/>
-          <Route path='/ServedHos' element ={<ServedHos/>}/>
-          {/* Add more routes as needed */}
-        </Routes>
+        <Fragment>
+          {/* Define your routes inside the Routes component */}
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Test />} />
+            <Route path="/doctors" element={<SearchDoc />} />
+            <Route path="/ambulance" element={<Searchamb />} />
+            <Route path="/test" element={<Test1 />} />
+            <Route path="/Registration" element={<Resigtration />} />
+            <Route path="/test3" element={<Test3 />} />
+            <Route path="/hospital" element={<Hospitalhome />} />
+            <Route path="/Driver" element={<DriverHome />} />
+            <Route path="/Pendingamb" element={<Pendingamb />} />
+            <Route path="/Orderedamb" element={<Orderamb />} />
+            <Route path="/ServedHos" element={<ServedHos />} />
+            {/* Add a route for HospitalDetail component */}
+            <Route path="/hospital/details/:id" element={<HospitalDetail />} />
+          </Routes>
         </Fragment>
-        </LoginProvider>
-      
+      </LoginProvider>
     </Router>
   );
 }

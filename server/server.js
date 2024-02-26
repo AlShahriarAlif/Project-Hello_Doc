@@ -51,36 +51,87 @@ app.post('/Confirm_Order', async(req, res) => {
   }
 });
 
+///get All Ambulance  from Hospital id
+app.get("/AmbulanceUnderHos/:ID", async (req, res) => {
+  try {
+    const { ID } = req.params;
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Ambulance" ' +
+      'WHERE "ID" IN (' +
+      'SELECT ambulance_id FROM "Hello_Doc"."Manage Ambulance" ' +
+      'WHERE hos_id = $1)',
+      [ID]
+    );
+
+    console.log(q.rows);
+    res.json(q.rows);
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
+///get All Doctor  from Hospital id
+app.get("/DoctorUnderHos/:ID", async (req, res) => {
+  try {
+    const { ID } = req.params;
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Doctor" ' +
+      'INNER JOIN "Hello_Doc"."Doctor Visit" ON "Hello_Doc"."Doctor"."doc_id" = "Hello_Doc"."Doctor Visit"."Doc_id" ' +
+      'WHERE "Hello_Doc"."Doctor Visit"."hos_id" = $1',
+      [ID]
+    );
+
+    console.log(q.rows);
+    res.json(q.rows);
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+///get hospital Name from id
+app.get("/HosName/:ID", async (req, res) => {
+  try {
+    const { ID } = req.params;
+    const q = await pool.query(
+      'SELECT hos_name FROM "Hello_Doc"."Hospital" WHERE "hos_id" = $1', [ID]
+    );
+
+    console.log(q.rows);
+    res.json(q.rows);
+
+  } catch (err) {
+    console.error(err.message);
+  }
+})
 app.post('/bookambulance', async (req, res) => {
   try {
     const { user_id, ambulance_id } = req.body;
-    const let_him_book = await pool.query(
-      'SELECT "Hello_Doc"."Order Ambulance"."user_id" FROM "Hello_Doc"."Order Ambulance" WHERE "user_id"=$1 AND "Status"=$2',[user_id,'Confirmed']
-    );
-    if(let_him_book.rows.length>0)
-    {
-      return res.json({success:1});
-    }
 
-    const lastIDFromQuery=await pool.query(
+    const lastIDFromQuery = await pool.query(
       'SELECT "ID" FROM "Hello_Doc"."Order Ambulance" ORDER BY "ID" DESC LIMIT 1'
     );
-    let lastID=0;
-    if(lastIDFromQuery.rows.length>0) {
-      lastID=lastIDFromQuery.rows[0]["ID"];
+    let lastID = 0;
+    if (lastIDFromQuery.rows.length > 0) {
+      lastID = lastIDFromQuery.rows[0]["ID"];
     }
-    const newID=lastID+1;
+    const newID = lastID + 1;
     await pool.query(
-      'INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id", "ID", "Status") VALUES ($1, $2, $3, $4)', 
+      'INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id", "ID", "Status") VALUES ($1, $2, $3, $4)',
       [user_id, ambulance_id, newID, "Pending"]
-  );
-  
-
-    
-    return res.json({ success: 3 });
+    );
+    return res.json({ success: 3 }); // Move this line inside the try block
   } catch (err) {
     console.error(err);
-    return res.json({ success: 4 });
+    if (err.message.includes('User with id')) {
+      return res.json({ success: 1 });
+    } else {
+      return res.json({ success: 4 });
+    }
   }
 });
 //All the Hospital

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { LoginContext } from './logincontext';
 import { AmbulanceLogInContext } from './ambulancelogincotext';
-let Order_Confirmed=false;
+
 const Ambulance = () => {
     const { isLoggedIn, userID } = useContext(LoginContext);
     const { setAmbulanceID } = useContext(AmbulanceLogInContext);
@@ -31,58 +31,51 @@ const Ambulance = () => {
             console.error(err.message);
         }
     }
-        useEffect(() => {
-            getData();
-        }, []);
+    useEffect(() => {
+        getData();
+    }, []);
 
-    
-        const filteredResults = results.filter(result =>
-            (result.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                result.Contact.includes(searchQuery)) &&
-            (filterType === '' || (filterType === 'AC' && result.AC) || (filterType === 'MICU' && result.Is_MICU)) &&
-            (!minPrice || parseFloat(result.Price_per_hour.slice(1)) >= parseFloat(minPrice)) &&
-            (!maxPrice || parseFloat(result.Price_per_hour.slice(1)) <= parseFloat(maxPrice))
-        );
+    const filteredResults = results.filter(result =>
+        (result.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            result.Contact.includes(searchQuery)) &&
+        (filterType === '' || (filterType === 'AC' && result.AC) || (filterType === 'MICU' && result.Is_MICU)) &&
+        (!minPrice || parseFloat(result.Price_per_hour.slice(1)) >= parseFloat(minPrice)) &&
+        (!maxPrice || parseFloat(result.Price_per_hour.slice(1)) <= parseFloat(maxPrice))
+    );
 
-        const confirmOrder = async (result) => {
-           if(Order_Confirmed)
-           {
-            alert('You Have Already Confirmed An Order.');
-           }
-           else
-           {
-            
-            try{
-                const res = await fetch(`http://localhost:5000/Confirm_Order`, {
-                    method:'POST',
-                    headers:
-                    {
-                        "Content-Type": "application/json",
-                        
-                    },
-                    body: JSON.stringify({
-                        amb_id:result["Ambulance id"],
-                        user_id:result["Reg. Number"],
-                    }),
-                });
-                const data =  await res.json();
-                if(data.success===1)
-                {
-                    alert('Order Confirmed');
-                    Order_Confirmed=true;
-                }
-                else
-                {
-                    alert('Probably Some error Occured we are trying to fix it');
-                }
+    const confirmOrder = async (result) => {
+      let ambulanceNotConfirm=true;
+      if(ambulanceNotConfirm)
+      {
+        try {
+            const res = await fetch('http://localhost:5000/Confirm_Order', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    amb_id: result["Ambulance id"],
+                    user_id: result["Reg. Number"],
+                }),
+            });
+            const data = await res.json();
+            if (data.success === 1) {
+                alert('Order Confirmed');
+                ambulanceNotConfirm=false;
+            } else if (data.success === 0) {
+                alert('You Have Already Confirmed An Order.');
+            } else {
+                alert('Probably Some error Occured we are trying to fix it');
             }
-            catch(err)
-            {
-                console.error(err.message);
-            }
-           }
-        };
-        
+        } catch (err) {
+            console.error(err.message);
+        }
+      }
+      else
+      {
+        alert('You Have Already Confirmed An Order.');
+      }
+    };        
 
     
         return (
