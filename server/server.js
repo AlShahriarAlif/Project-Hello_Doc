@@ -51,7 +51,7 @@ app.post('/Confirm_Order', async(req, res) => {
   }
 });
 
-///get All Ambulance  from Hospital id
+///get All Ambulance  from Hospital id(Sub query)
 app.get("/AmbulanceUnderHos/:ID", async (req, res) => {
   try {
     const { ID } = req.params;
@@ -73,7 +73,7 @@ app.get("/AmbulanceUnderHos/:ID", async (req, res) => {
 });
 
 
-///get All Doctor  from Hospital id
+///get All Doctor  from Hospital id()
 app.get("/DoctorUnderHos/:ID", async (req, res) => {
   try {
     const { ID } = req.params;
