@@ -25,6 +25,12 @@ const Navbar = () => {
             <Link to="/ServedHos" className="nav-link"><i className="far fa-calendar-alt"></i>Served Hospital</Link>
           </li>
           <li className="nav-item">
+            <Link to="/app_m_d" className="nav-link"><i className="far fa-calendar-alt"></i>Apply For Maintenance</Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/ServedHos" className="nav-link"><i className="far fa-calendar-alt"></i>All Cost</Link>
+          </li>
+          <li className="nav-item">
             {isLoggedIn ? (
               <a className="nav-link"><i className="far fa-chart-bar"></i>{username}</a>
               ) : (

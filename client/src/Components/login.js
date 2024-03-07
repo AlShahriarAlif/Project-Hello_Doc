@@ -1,10 +1,11 @@
 import React, { useState, useContext ,useEffect} from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import { LoginContext } from './logincontext';
-
+import {AmbulanceLogInContext} from './ambulancelogincotext';
 
 const Login = () => {
     const { setIsLoggedIn, setUserName, setUserID, userID } = useContext(LoginContext);
+    const {AmbulanceID,setAmbulanceID} = useContext(AmbulanceLogInContext);
     const [inputs, setInputs] = useState({
         firstName: "",
         password: "",
@@ -49,17 +50,21 @@ const Login = () => {
             console.log('Login response data:', data); // Add this line
             setIsLoggedIn(true);
             setUserName(firstName);
-             // Access 'Reg. Number' using bracket notation
-            
- // Navigate user to different pages based on userType
+             
             switch(userType) {
                 case "Driver":
-                    setUserID(data[0]['driver_id']);
+                    setUserID(data['driver_id']);
+                    setAmbulanceID(data['ambulance_id']);
                     console.log('userID set:', userID);
-                    navigate("/Driver");
+                    console.log("Amb ID: ",AmbulanceID);
+                   navigate("/Driver");
                     break;
                 case "Hospital Owner":
-                    navigate("/hospital");
+                    if (data.length > 0) {
+                        setUserID(data[0]['ID']);
+                        console.log('userID set:', userID);
+                    }
+                    navigate("/OwnerLogin");
                     break;
                 case "Admin":
                     navigate("/");
@@ -67,6 +72,7 @@ const Login = () => {
                 default:
                     setUserID(data[0]['Reg. Number']);
                     console.log('userID set:', userID);
+                    
                     navigate("/ambulance"); // Default to Normal User
             }
             //console.log(setID);

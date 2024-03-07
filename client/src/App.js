@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import { LoginProvider } from './Components/loginprovider';
+import {AmbulaceIdProvider} from './Components/ambulanceloginprovider';
 import Test from './Components/home';
 import SearchDoc from './Components/searchDoc';
 import Searchamb from './Components/Ambulance';
@@ -15,10 +16,14 @@ import Pendingamb from './Components/PendingAmb';
 import Orderamb from './Components/OrderAmb';
 import ServedHos from './Components/ServedHospital';
 import HospitalDetail from './Components/HospitalDetail'; // Import HospitalDetail component
+import ApplyForMoneyDriver from './Components/App_M_D';
+import OwnerLogin from './Components/Owner_After_Login';
+import PendingMoney from './Components/PendingMoney';
 
 function App() {
   return (
     <Router>
+      <AmbulaceIdProvider>
       <LoginProvider>
         <Fragment>
           {/* Define your routes inside the Routes component */}
@@ -35,11 +40,15 @@ function App() {
             <Route path="/Pendingamb" element={<Pendingamb />} />
             <Route path="/Orderedamb" element={<Orderamb />} />
             <Route path="/ServedHos" element={<ServedHos />} />
+            <Route path="/app_m_d" element={<ApplyForMoneyDriver />} />
+            <Route path="/OwnerLogin" element={<OwnerLogin />} />
+            <Route path="/PendingMoney" element={<PendingMoney/>}/>
             {/* Add a route for HospitalDetail component */}
             <Route path="/hospital/details/:id" element={<HospitalDetail />} />
           </Routes>
         </Fragment>
       </LoginProvider>
+      </AmbulaceIdProvider>
     </Router>
   );
 }

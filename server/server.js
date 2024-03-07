@@ -37,6 +37,44 @@ app.use(express.json());
 //   }
 
 // });
+app.get('/pendingdriverreq', async (req, res) => {
+  const Owner_ID = req.query['Owner_ID']; 
+  const q = await pool.query('SELECT h1."Hospital Id" FROM "Hello_Doc"."Manage Hospital" h1 WHERE h1."Admin Id"=$1;', [Owner_ID]);
+let hospital_id = q.rows[0]["Hospital Id"];;
+  try {
+    
+    await pool.query('CALL "Hello_Doc".get_ambulance_req($1)', [hospital_id]);
+
+    
+    const result = await pool.query('SELECT * FROM temp_driver_request');
+
+    
+    console.log(result.rows);
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' }); 
+  }
+});
+
+
+app.post('/applyformoney', async (req, res) => {
+  const { driverID,problem,cost,ambulanceId } = req.body;
+  console.log(driverID);
+  console.log(ambulanceId);
+ console.log(req.body);
+ try {
+   const result = await pool.query(
+     'INSERT INTO "Hello_Doc"."Driver request for money" ("Dri_id", "Problem", "Amount", "Amb_ID","Status") VALUES ($1, $2, $3, $4,$5) RETURNING *',
+     [driverID,problem,cost,ambulanceId,"Ungranted"]
+   );
+  return res.json({success:0});
+ } catch (err) {
+   console.error(err);
+   return res.json({ success: 4 });
+ }
+});
+
 app.post('/Serve_Order', async (req, res) => {
   const { user_id, amb_id } = req.body;
   const client = await pool.connect();
@@ -403,25 +441,31 @@ app.get("/Pending_AmbOrder/:ID", async (req, res) => {
 app.post("/login/Driver", async (req, res) => {
   try {
     console.log("log in req coming for driver");
-    const { firstName, password } = req.body;
-    // const {"type":type} = req.headers;
-    // console.log(type)
-    //console.log("dsds");
-    console.log(firstName, password);
+    const {firstName,password} = req.body;
+    console.log(firstName,password);
     const q = await pool.query(
-      'SELECT * FROM "Hello_Doc"."Ambulance Driver" WHERE "driver_name" = $1 AND "contact" = $2', [firstName, password]
+      'SELECT * FROM "Hello_Doc"."Ambulance Driver" WHERE "driver_name" = $1 AND "contact" = $2',[firstName,password]
     );
-    console.log(q.rows);
-    if (q.rows.length === 0)
+    if(q.rows.length === 0)
+    {
       return res.sendStatus(401);
-    //return res.sendStatus(200);
-    return res.json(q.rows);
+    }
 
+    const get_amb_id= await pool.query(
+      'SELECT "ambulance_id" FROM "Hello_Doc"."Driver Info"  WHERE "driver_id"=$1',[q.rows[0]["driver_id"]]
+    );
+    
+    const response = {
+      ...q.rows[0],
+      ambulance_id: get_amb_id.rows[0]["ambulance_id"]
+    };
+    console.log(response);
+
+    return res.json(response);
   } catch (err) {
     console.error(err.message);
   }
 })
-
 //Hospital owner log in
 app.post("/login/Hospital", async (req, res) => {
   try {
