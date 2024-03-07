@@ -73,7 +73,7 @@ const Login = () => {
                     setUserID(data[0]['Reg. Number']);
                     console.log('userID set:', userID);
                     
-                    navigate("/ambulance"); // Default to Normal User
+                    navigate("/"); // Default to Normal User
             }
             //console.log(setID);
         }
