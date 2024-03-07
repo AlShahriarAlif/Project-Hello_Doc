@@ -37,19 +37,128 @@ app.use(express.json());
 //   }
 
 // });
-app.post('/Confirm_Order', async(req, res) => {
+app.post('/Serve_Order', async (req, res) => {
+  const { user_id, amb_id } = req.body;
+  const client = await pool.connect();
+
   try {
-      const { amb_id, user_id } = req.body;
-      const result = await pool.query(
-          'SELECT * FROM confirm_order($1, $2)',
-          [amb_id, user_id]
-      );
-      res.json(result.rows[0]);
-  } catch(err) {
-      console.error(err.message);
-      res.json({ success: 2 });
+    await client.query('BEGIN'); // Begin transaction
+
+    // Update Order Ambulance Status
+    await client.query(
+      'UPDATE "Hello_Doc"."Order Ambulance" SET "Status" = $1 WHERE "Ambulance id" = $2 AND user_id = $3',
+      ['Served', amb_id, user_id]
+    );
+
+    // Update Ambulance Availability
+    await client.query(
+      'UPDATE "Hello_Doc"."Ambulance" SET "Availability" = TRUE WHERE "ID" = $1',
+      [amb_id]
+    );
+
+    // Get Price Per Hour from the Ambulance table
+    const priceResult = await client.query(
+      'SELECT "Price_per_hour" FROM "Hello_Doc"."Ambulance" WHERE "ID" = $1',
+      [amb_id]
+    );
+    const price = priceResult.rows[0].Price_per_hour;
+
+    // Deduct Price Per Hour from User Account
+    await client.query(
+      'UPDATE "Hello_Doc"."User_Account" SET "Balance" = "Balance" - $1 WHERE "User_id" = $2',
+      [price, user_id]
+    );
+
+    // Add Price Per Hour to Driver Account
+    await client.query(
+      'UPDATE "Hello_Doc"."Driver_Account" SET "Balance" = "Balance" + $1 WHERE "Driver_id" IN (SELECT driver_id FROM "Hello_Doc"."Driver Info" WHERE ambulance_id = $2)',
+      [price, amb_id]
+    );
+
+    await client.query('COMMIT'); // Commit transaction
+    res.json({ success: 1 });
+  } catch (err) {
+    await client.query('ROLLBACK'); // Rollback transaction
+    console.error(err.message);
+    res.json({ success: 0, error: err.message });
+  } finally {
+    client.release(); // Release client back to the pool
   }
 });
+
+
+  app.post('/bookappointment', async (req, res) => {
+    try {
+      const { user_id, doctor_id,appointmentDate,appointmentTime } = req.body;
+  
+    } catch (err) {
+      console.error(err);
+      if (err.message.includes('User with id')) {
+        return res.json({ success: 1 });
+      } else {
+        return res.json({ success: 4 });
+      }
+    }
+  });
+
+app.post('/Confirm_Order', async (req, res) => {
+  try {
+    const { amb_id, user_id } = req.body;
+    const result = await pool.query(
+      'SELECT * FROM confirm_order($1, $2)',
+      [amb_id, user_id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.json({ success: 2 });
+  }
+});
+
+
+
+app.post('/Cancel_Order', async (req, res) => {
+  try {
+    const { amb_id, user_id } = req.body;
+
+    const updateOrderQuery = `
+      UPDATE "Hello_Doc"."Order Ambulance"
+      SET "Status" = 'Declined'
+      WHERE "Ambulance id" = $1 AND "user_id" = $2 AND "Status" = 'Pending';
+    `;
+    
+    await pool.query(updateOrderQuery, [amb_id, user_id]);
+
+    res.json({ success: 1, message: 'Order canceled.' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: 0, message: 'An error occurred while canceling the order.' });
+  }
+});
+
+//Ordered Or Served Ambulance Order Under An Ambulance
+app.get("/OrederedAmb/:ID", async (req, res) => {
+  try {
+    console.log("Pending data");
+    const { ID } = req.params;
+    const q = await pool.query(
+      `SELECT oa."Ambulance id", u."Reg. Number", u."Name", oa."Status", u."Location", u."Email"
+      FROM "Hello_Doc"."User" AS u,
+      (SELECT * FROM "Hello_Doc"."Order Ambulance" WHERE "Status" ='Confirmed' OR "Status" ='Served') AS oa,
+      (SELECT * FROM "Hello_Doc"."Driver Info" WHERE "driver_id" = $1) AS di
+      WHERE oa."user_id" = u."Reg. Number"
+      AND oa."Ambulance id" = di."ambulance_id";
+      
+      `, [ID]
+    );
+    //console.log("req coming");
+    console.log(q.rows);
+    return res.json(q.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+})
+
 
 ///get All Ambulance  from Hospital id(Sub query)
 app.get("/AmbulanceUnderHos/:ID", async (req, res) => {
@@ -72,7 +181,19 @@ app.get("/AmbulanceUnderHos/:ID", async (req, res) => {
   }
 });
 
+app.get("/Hello_Doc/search/Alldoctor", async (req, res) => {
+  try {
+    console.log("req coming");
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Doctor"'
+    );
+    console.log(q.rows);
+    return res.json(q.rows);
 
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 ///get All Doctor  from Hospital id()
 app.get("/DoctorUnderHos/:ID", async (req, res) => {
   try {
@@ -108,9 +229,29 @@ app.get("/HosName/:ID", async (req, res) => {
     console.error(err.message);
   }
 })
+
+app.post('/checkorder', async (req, res) => {
+  try {
+    const { user_id } = req.body;
+    const q = await pool.query(
+      'SELECT * FROM "Hello_Doc"."Order Ambulance" WHERE "user_id" = $1', [user_id]
+    );
+    if (q.rows.length > 0) {
+      res.json({ success: 1 }); // User has already booked an ambulance
+    } else {
+      res.json({ success: 0 }); // User has not booked any ambulance
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: -1, message: "Failed to check order." }); // Error occurred while checking order
+  }
+});
+
+
+
 app.post('/bookambulance', async (req, res) => {
   try {
-    const { user_id, ambulance_id } = req.body;
+    const { user_id, ambulance_id,location,emergency } = req.body;
 
     const lastIDFromQuery = await pool.query(
       'SELECT "ID" FROM "Hello_Doc"."Order Ambulance" ORDER BY "ID" DESC LIMIT 1'
@@ -121,8 +262,8 @@ app.post('/bookambulance', async (req, res) => {
     }
     const newID = lastID + 1;
     await pool.query(
-      'INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id", "ID", "Status") VALUES ($1, $2, $3, $4)',
-      [user_id, ambulance_id, newID, "Pending"]
+      'INSERT INTO "Hello_Doc"."Order Ambulance" (user_id, "Ambulance id", "ID", "Status","Location","Emergency") VALUES ($1, $2, $3, $4,$5,$6)',
+      [user_id, ambulance_id, newID, "Pending",location,emergency]
     );
     return res.json({ success: 3 }); // Move this line inside the try block
   } catch (err) {
@@ -166,44 +307,48 @@ app.get("/Hello_Doc", async (req, res) => {
     console.error(err.message);
   }
 })
+
 app.get("/Ambulance_Home", async (req, res) => {
   try {
-    console.log("req coming");
-    const q = await pool.query(
-      'SELECT * FROM "Hello_Doc"."Ambulance";'
-    );
+    const q = await pool.query('SELECT * FROM get_available_ambulances()');
+
+    if (q.rowCount === 0) {
+      console.log("No rows returned from stored function.");
+    }
+
     console.log(q.rows);
     return res.json(q.rows);
 
   } catch (err) {
     console.error(err.message);
+    res.status(500).send("Internal Server Error");
   }
-})
+});
+
 //for Creating new Account
 app.post("/Registration", async (req, res) => {
   try {
     console.log("Registration req coming");
-    const {firstName, email,password,location} = req.body;
-    const {"type":type} = req.headers;
+    const { firstName, email, password, location } = req.body;
+    const { "type": type } = req.headers;
     console.log(type)
-    console.log(firstName,email,password,location);
-    
+    console.log(firstName, email, password, location);
+
     //for updating reg number automatically
     const lastRegNumberQuery = await pool.query(
       'SELECT "Reg. Number" FROM "Hello_Doc"."User" ORDER BY "Reg. Number" DESC LIMIT 1'
     );
-    let lastRegNumber=0;
-    if(lastRegNumberQuery.rows.length>0)
-    {
+    let lastRegNumber = 0;
+    if (lastRegNumberQuery.rows.length > 0) {
       lastRegNumber = lastRegNumberQuery.rows[0]["Reg. Number"];
     }
     const newRegNumber = lastRegNumber + 1;
 
     const q = await pool.query(
       'INSERT INTO "Hello_Doc"."User" ("Reg. Number", "Name", "Email", "Password","Location") VALUES ($1, $2, $3, $4,$5) RETURNING *',
-      [newRegNumber, firstName, email, password,location]    );
+      [newRegNumber, firstName, email, password, location]);
     console.log(q.rows);
-    if(q.rows.length === 0)
+    if (q.rows.length === 0)
       return res.sendStatus(401);
     return res.sendStatus(200);
     // return res.json(q.rows);
@@ -217,18 +362,18 @@ app.post("/Registration", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     console.log("log in req coming");
-    const {firstName,password} = req.body;
-    const {"type":type} = req.headers;
+    const { firstName, password } = req.body;
+    const { "type": type } = req.headers;
     console.log(type)
-    console.log(firstName,password);
+    console.log(firstName, password);
     const q = await pool.query(
-      'SELECT * FROM "Hello_Doc"."User" where "Name" = $1 AND "Password"=$2;',[firstName,password]
+      'SELECT * FROM "Hello_Doc"."User" where "Name" = $1 AND "Password"=$2;', [firstName, password]
     );
     console.log(q.rows);
-    if(q.rows.length === 0)
+    if (q.rows.length === 0)
       return res.sendStatus(401);
     //return res.sendStatus(200);
-     return res.json(q.rows);
+    return res.json(q.rows);
 
   } catch (err) {
     console.error(err.message);
@@ -258,19 +403,19 @@ app.get("/Pending_AmbOrder/:ID", async (req, res) => {
 app.post("/login/Driver", async (req, res) => {
   try {
     console.log("log in req coming for driver");
-    const {firstName,password} = req.body;
+    const { firstName, password } = req.body;
     // const {"type":type} = req.headers;
     // console.log(type)
     //console.log("dsds");
-    console.log(firstName,password);
+    console.log(firstName, password);
     const q = await pool.query(
-      'SELECT * FROM "Hello_Doc"."Ambulance Driver" WHERE "driver_name" = $1 AND "contact" = $2',[firstName,password]
+      'SELECT * FROM "Hello_Doc"."Ambulance Driver" WHERE "driver_name" = $1 AND "contact" = $2', [firstName, password]
     );
     console.log(q.rows);
-    if(q.rows.length === 0)
+    if (q.rows.length === 0)
       return res.sendStatus(401);
     //return res.sendStatus(200);
-     return res.json(q.rows);
+    return res.json(q.rows);
 
   } catch (err) {
     console.error(err.message);
@@ -281,19 +426,19 @@ app.post("/login/Driver", async (req, res) => {
 app.post("/login/Hospital", async (req, res) => {
   try {
     console.log("log in req coming for Hospital Owner");
-    const {firstName,password} = req.body;
+    const { firstName, password } = req.body;
     // const {"type":type} = req.headers;
     // console.log(type)
     //console.log("dsds");
-    console.log(firstName,password);
+    console.log(firstName, password);
     const q = await pool.query(
-      'SELECT * FROM "Hello_Doc"."Hospital Admin" WHERE "Name" = $1 AND "Password" = $2',[firstName,password]
+      'SELECT * FROM "Hello_Doc"."Hospital Admin" WHERE "Name" = $1 AND "Password" = $2', [firstName, password]
     );
     console.log(q.rows);
-    if(q.rows.length === 0)
+    if (q.rows.length === 0)
       return res.sendStatus(401);
     //return res.sendStatus(200);
-     return res.json(q.rows);
+    return res.json(q.rows);
 
   } catch (err) {
     console.error(err.message);
@@ -304,19 +449,19 @@ app.post("/login/Hospital", async (req, res) => {
 app.post("/login/Admin", async (req, res) => {
   try {
     console.log("log in req coming for Admin");
-    const {firstName,password} = req.body;
+    const { firstName, password } = req.body;
     // const {"type":type} = req.headers;
     // console.log(type)
     //console.log("dsds");
-    console.log(firstName,password);
+    console.log(firstName, password);
     const q = await pool.query(
-      'SELECT * FROM "Hello_Doc"."Admin" WHERE "Name" = $1 AND "Password" = $2',[firstName,password]
+      'SELECT * FROM "Hello_Doc"."Admin" WHERE "Name" = $1 AND "Password" = $2', [firstName, password]
     );
     console.log(q.rows);
-    if(q.rows.length === 0)
+    if (q.rows.length === 0)
       return res.sendStatus(401);
     //return res.sendStatus(200);
-     return res.json(q.rows);
+    return res.json(q.rows);
 
   } catch (err) {
     console.error(err.message);
@@ -345,8 +490,9 @@ app.get("/Hello_Doc/search/doctor/:name", async (req, res) => {
   try {
     const { name } = req.params;
     const results = await pool.query(
-      'SELECT * FROM "Hello_Doc"."Doctor" WHERE "doc_name" = $1', [name]
+      'SELECT * FROM "Hello_Doc"."Doctor" WHERE "doc_name" ILIKE $1', ['%' + name + '%']
     );
+    
     res.json(results.rows);
   } catch (err) {
     console.error(err.message);
@@ -371,7 +517,7 @@ app.post("/login/Driver", async (req, res) => { // Change to match the frontend 
     console.log("log in req coming");
     const { firstName, password } = req.body;
     const q = await pool.query(
-      'SELECT * FROM "Hello_Doc"."Ambulance Driver" WHERE "driver_name" = $1 AND "contact" = $2', 
+      'SELECT * FROM "Hello_Doc"."Ambulance Driver" WHERE "driver_name" = $1 AND "contact" = $2',
       [firstName, password]
     );
     console.log(q.rows);
@@ -388,9 +534,9 @@ app.get("/Hello_Doc/search/hospital/:name", async (req, res) => {
   try {
     const { name } = req.params;
     const results = await pool.query(
-      'SELECT "Hello_Doc"."Doctor".doc_name,"Hello_Doc"."Doctor".email,"Hello_Doc"."Doctor".speciality,"Hello_Doc"."Doctor"."location" FROM "Hello_Doc"."Doctor" JOIN "Hello_Doc"."Doctor Visit" ON "Hello_Doc"."Doctor"."doc_id" = "Hello_Doc"."Doctor Visit"."Doc_id" JOIN "Hello_Doc"."Hospital" ON "Hello_Doc"."Doctor Visit"."hos_id" = "Hello_Doc"."Hospital"."hos_id" WHERE "Hello_Doc"."Hospital"."hos_name" = $1', [name]
-
+      'SELECT "Hello_Doc"."Doctor".doc_name, "Hello_Doc"."Doctor".email, "Hello_Doc"."Doctor".speciality, "Hello_Doc"."Doctor"."location" FROM "Hello_Doc"."Doctor" JOIN "Hello_Doc"."Doctor Visit" ON "Hello_Doc"."Doctor"."doc_id" = "Hello_Doc"."Doctor Visit"."Doc_id" JOIN "Hello_Doc"."Hospital" ON "Hello_Doc"."Doctor Visit"."hos_id" = "Hello_Doc"."Hospital"."hos_id" WHERE LOWER("Hello_Doc"."Hospital"."hos_name") LIKE LOWER($1)', ['%' + name + '%']
     );
+    
     res.json(results.rows);
   } catch (err) {
     console.error(err.message);

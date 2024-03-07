@@ -1,19 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { LoginContext } from './logincontext'; 
-import { AmbulanceLogInContext} from './ambulancelogincotext';
-import Modal from 'react-modal';
-
-// Make sure to bind modal to your appElement
-//Modal.setAppElement('#yourAppElement')
-// Make sure to bind modal to your appElement
-Modal.setAppElement('#root')
-
-let ambulanceBooked = false;
+import { LoginContext } from './logincontext';
+import { AmbulanceLogInContext } from './ambulancelogincotext';
 
 const Ambulance = () => {
-    const { isLoggedIn,userID } = useContext(LoginContext);
-    const {setAmbulanceID}=useContext(AmbulanceLogInContext); 
-     const [results, setResults] = useState([]);
+    const { isLoggedIn, userID } = useContext(LoginContext);
+    const { setAmbulanceID } = useContext(AmbulanceLogInContext);
+    const [results, setResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('');
     const [minPrice, setMinPrice] = useState('');
@@ -23,39 +15,62 @@ const Ambulance = () => {
 
     const getData = async () => {
         try {
-            const res = await fetch("http://localhost:5000/Ambulance_Home", {
+            const res = await fetch(`http://localhost:5000/OrederedAmb/${userID}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "request-type": "all_ambulance"
+                    "request-type": "Pending_Order"
                 },
             });
             const data = await res.json();
             setResults(data);
         } catch (err) {
             console.error(err.message);
+            // Handle error, maybe set an error state to display a message to the user
         }
-    }
+    };
 
     useEffect(() => {
         getData();
-    }, []);
+    }, [userID]); // Fetch data whenever userID changes
 
-    const handleSearch = (e) => {
-        setSearchQuery(e.target.value);
-    }
+    const handleFinishOrder = async (result) => {
+        // Implement logic for finishing order
+        try {
+            const res = await fetch('http://localhost:5000/Serve_Order', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    amb_id: result["Ambulance id"],
+                    user_id: result["Reg. Number"],
+                }),
+            });
+            const data = await res.json();
+           
+            if (data.success === 1) {
+                // Update the status of the finished order in the results state
+                setResults(prevResults => prevResults.map(item => {
+                    if (item === result) {
+                        return { ...item, Status: 'Served' };
+                    }
+                    return item;
+                }));
+                alert('Serve_Order is being processed successfully');
+            } else {
+                alert('Failed to process Serve_Order');
+            }
+        } catch (err) {
+            console.error(err.message);
+            // Handle error
+        }
+    };
+    
 
-    const handleFilterTypeChange = (e) => {
-        setFilterType(e.target.value);
-    }
-
-    const handleMinPriceChange = (e) => {
-        setMinPrice(e.target.value);
-    }
-
-    const handleMaxPriceChange = (e) => {
-        setMaxPrice(e.target.value);
-    }
+    const handleServed = (result) => {
+        // Implement logic for marking order as served
+    };
 
     const filteredResults = results.filter(result =>
         (result.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -64,164 +79,55 @@ const Ambulance = () => {
         (!minPrice || parseFloat(result.Price_per_hour.slice(1)) >= parseFloat(minPrice)) &&
         (!maxPrice || parseFloat(result.Price_per_hour.slice(1)) <= parseFloat(maxPrice))
     );
-
-    const bookAmbulance = async(result) => {
-        if (!isLoggedIn) {
-            alert('You must log in first.');
-            return;
+    
+    // Sort filteredResults so that items with 'Confirmed' status appear first
+    filteredResults.sort((a, b) => {
+        if (a.Status === 'Confirmed' && b.Status !== 'Confirmed') {
+            return -1; // a should come before b
+        } else if (a.Status !== 'Confirmed' && b.Status === 'Confirmed') {
+            return 1; // b should come before a
+        } else {
+            return 0; // the order remains unchanged
         }
-        if (ambulanceBooked) {
-            alert('You can order at most one ambulance at a time.');
-            return;
-        }
-        if (result.Availability) {
-            ambulanceBooked = true; // Set ambulanceBooked to true after booking
-             setAmbulanceID(result.ID);
-             setSelectedUser(result);
-             setModalIsOpen(true);
-            try {
-                const response = await fetch('http://localhost:5000/bookambulance',{
-                    
-
-                method:'POST',
-                headers :{
-                    'Content-Type':'application/json',
-                },
-                body: JSON.stringify({
-                    user_id :userID,
-                    ambulance_id:result.ID,
-                    
-                }) ,   
-                });
-                const data = await response.json();
-                if(data.success===3){
-                    alert('Ambulance booked successfully!');
-
-                }
-                else if(data.success===1)
-                {
-                    alert('Ambulance is not present available');
-                }
-                else if(data.success===2)
-                {
-                    alert('you have already ordered an Ambulance before . ');
-                }
-                else{
-                    alert('Maybe Some error occured our team is working on it');
-                }
-
-            }
-            catch(err){
-                console.error(err);
-                alert('Failed to book ambulance.');
-            }
-          
-        }
-         else {
-            alert('Sorry, this ambulance is not available.');
-        }
-    };
-
-    const closeModal = () => {
-        setModalIsOpen(false);
-        ambulanceBooked = false; // Reset ambulanceBooked to false when modal is closed
-    };
-   
+    });
     return (
         <div className="text-gray-900 bg-gray-200">
-            {/* ...rest of your code... */}
-            <div className="p-4 flex">
-                <h1 className="text-3xl">Users</h1>
-                <input
-                    type="text"
-                    placeholder="Search by name or contact"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    className="ml-4 px-3 py-1 border rounded"
-                />
-                <select
-                    value={filterType}
-                    onChange={handleFilterTypeChange}
-                    className="ml-4 px-3 py-1 border rounded"
-                >
-                    <option value="">All</option>
-                    <option value="AC">AC</option>
-                    <option value="MICU">MICU</option>
-                </select>
-                <input
-                    type="number"
-                    placeholder="Min Price"
-                    value={minPrice}
-                    onChange={handleMinPriceChange}
-                    className="ml-4 px-3 py-1 border rounded"
-                />
-                <input
-                    type="number"
-                    placeholder="Max Price"
-                    value={maxPrice}
-                    onChange={handleMaxPriceChange}
-                    className="ml-4 px-3 py-1 border rounded"
-                />
-            </div>
             <div className="px-3 py-4 flex justify-center">
-                <table className="w-full text-md bg-white shadow-md rounded mb-4">
-                    <tbody>
-                        <tr className="border-b">
-                            <th className="text-left p-3 px-5">Name</th>
-                            <th className="text-left p-3 px-5">Contact</th>
-                            <th className="text-left p-3 px-5">Current Location</th>
-                            <th className="text-left p-3 px-5">Price per hour</th>
-                            <th className="text-left p-3 px-5">License</th>
-                            <th></th>
-                        </tr>
-                        {filteredResults.map((result, index) => (
-                            <tr key={index} className="border-b hover:bg-orange-100">
-                                <td className="p-3 px-5">{result.Name}</td>
-                                <td className="p-3 px-5">{result.Contact}</td>
-                                <td className="p-3 px-5">{result['Current Location']}</td>
-                                <td className="p-3 px-5">{result.Price_per_hour}</td>
-                                <td className="p-3 px-5">{result.License}</td>
-                                <td className="p-3 px-5">
-                                    <button onClick={() => bookAmbulance(result)}>Book</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <h1 className="p-4 flex">Order Details:</h1>
             </div>
-            <Modal
-                isOpen={modalIsOpen}
-                onRequestClose={closeModal}
-                contentLabel="Appointment Modal"
-                style={{
-                    content: {
-                        width: '300px',
-                        height: '200px',
-                        margin: 'auto',
-                        padding: '20px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        borderRadius: '10px',
-                        boxShadow: '0px 0px 10px 2px rgba(0,0,0,0.1)'
-                    }
-                }}
-            >
-                <h2>Book Appointment</h2>
-                <form>
-                    <label>
-                        Date:
-                        <input type="date" name="appointmentDate" />
-                    </label>
-                    <label>
-                        Price:
-                        <input type="text" value={selectedUser?.Price_per_hour} readOnly />
-                    </label>
-                    <button type="submit">Submit</button>
-                </form>
-                <button onClick={closeModal}>Close</button>
-            </Modal>
+            <table className="w-full text-md bg-blue-100 shadow-md rounded mb-4">
+                <thead>
+                    <tr className="border-b">
+                        <th className="text-left p-3 px-5">Name</th>
+                        <th className="text-left p-3 px-5">Contact</th>
+                        <th className="text-left p-3 px-5">Location</th>
+                        <th className="text-left p-3 px-5">Order Confirmation</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredResults.map((result, index) => (
+                        <tr key={index} className="border-b hover:bg-blue-200">
+                            <td className="p-3 px-5">{result.Name}</td>
+                            <td className="p-3 px-5">{result.Email}</td>
+                            <td className="p-3 px-5">{result['Location']}</td>
+                            <td className="p-3 px-5">
+                                {result.Status === 'Confirmed' && (
+                                    <button onClick={() => handleFinishOrder(result)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+                                        Finish Order
+                                    </button>
+                                )}
+                                {result.Status === 'Served' && (
+                                    <button onClick={() => handleServed(result)} className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                                        Served
+                                    </button>
+                                )}
+                               
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }

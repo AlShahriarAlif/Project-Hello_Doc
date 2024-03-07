@@ -1,4 +1,4 @@
---Confirm order function
+--Confirm order function(1)
 CREATE OR REPLACE FUNCTION confirm_order(amb_id_param INT, user_id_param INT)
 RETURNS TABLE(success INT, message TEXT) AS $$
 DECLARE
@@ -50,7 +50,10 @@ EXCEPTION
         message := SQLERRM;
         RETURN QUERY SELECT success, message;
 END; $$ LANGUAGE plpgsql;
---Function
+
+
+
+--Trigger(1)
 CREATE OR REPLACE FUNCTION check_user_status_before_insert()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -61,8 +64,32 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---Trigger
+
 CREATE TRIGGER check_status_before_insert
 BEFORE INSERT ON "Hello_Doc"."Order Ambulance"
 FOR EACH ROW
 EXECUTE PROCEDURE check_user_status_before_insert();
+
+
+
+--Ambulance Function(2)
+CREATE OR REPLACE FUNCTION get_available_ambulances()
+RETURNS SETOF "Hello_Doc"."Ambulance" AS $$
+DECLARE
+    ambulance_record "Hello_Doc"."Ambulance"%ROWTYPE;
+    ambulance_cursor CURSOR FOR
+        SELECT *
+        FROM "Hello_Doc"."Ambulance"
+        WHERE "Availability" = TRUE
+        ORDER BY "Current Location" ASC;
+BEGIN
+    FOR ambulance_record IN ambulance_cursor LOOP
+        -- Return each ambulance record
+        RETURN NEXT ambulance_record;
+    END LOOP;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+

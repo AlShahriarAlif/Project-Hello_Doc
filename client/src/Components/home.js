@@ -3,13 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LoginContext } from './logincontext';
 
 import "./homepage.css"; 
-
 const Navbar = () => {
   
     const { isLoggedIn, username } = useContext(LoginContext);
 
   const navigate = useNavigate(); 
   return (
+    
     <nav className="navbar navbar-expand-custom navbar-mainbg">
       <a className="navbar-brand navbar-logo" href="#">Hello_Doc</a>
       <div id="navbarSupportedContent">
